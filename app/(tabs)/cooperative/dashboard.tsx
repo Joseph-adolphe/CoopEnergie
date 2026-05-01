@@ -10,6 +10,15 @@ export default function CooperativeDashboard() {
     <ThemedView style={styles.container}>
       <ThemedText type="title">Dashboard coopérative</ThemedText>
       <ThemedText style={styles.body}>Vue d'ensemble de la coopérative (prototype).</ThemedText>
+
+      <Link href="/cooperative/membres" style={styles.next}>
+        Voir les membres
+      </Link>
+
+      <Link href="/cooperative/cotiser" style={styles.next}>
+        Aller à Cotiser
+      </Link>
+
       <Link href="/cooperative/historique/1" style={styles.next}>
         Voir historique (exemple)
       </Link>

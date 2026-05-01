@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { View, TextInput, StyleSheet, TextInputProps , type ViewProps } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { spacing } from '@/constants/theme';
 
-type InputProps = TextInputProps & {
+type InputProps = TextInputProps & ViewProps & {
   label?: string;
   leftIcon?: any;
   rightIcon?: any;
