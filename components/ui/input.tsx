@@ -13,11 +13,11 @@ type InputProps = TextInputProps & ViewProps & {
 
 export function Input({ label, leftIcon, rightIcon, style, ...rest }: InputProps) {
   const bg = useThemeColor({}, 'white');
-  const surface = useThemeColor({}, 'cyanCard');
+  const text = useThemeColor({}, 'text');
 
   return (
     <View style={styles.wrapper}>
-      {label ? <ThemedText type="defaultSemiBold">{label}</ThemedText> : null}
+      {label ? <ThemedText  type="text">{label}</ThemedText> : null}
       <View style={[styles.inputRow, { backgroundColor: bg }, style]}>
         {leftIcon ? <IconSymbol name={leftIcon as any} size={20} color={useThemeColor({}, 'darkGreen') as any} /> : null}
         <TextInput placeholderTextColor={useThemeColor({}, 'textMuted') as any} style={styles.input} {...rest} />
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: spacing.rMd,
+    marginTop: 4 
   },
-  input: { flex: 1, padding: 0, marginLeft: 8, fontSize: 16 },
+  input: { flex: 1, padding: 0, marginLeft: 8, fontSize: 16  },
 });

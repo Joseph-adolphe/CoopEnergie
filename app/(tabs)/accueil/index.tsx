@@ -8,6 +8,9 @@ import { Avatar } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { spacing } from '@/constants/theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useColorScheme } from '@/hooks/use-color-scheme.web';
+import { Colors } from '@/constants/theme';
 
 type Contribution = { id: string; name: string; amount: number; date: string };
 
@@ -21,6 +24,7 @@ export default function Dashboard() {
   const darkGreen = useThemeColor({}, 'darkGreen');
   const accent = useThemeColor({}, 'accentGreen');
   const white = useThemeColor({}, 'white');
+    const theme = useColorScheme() ?? 'light';
 
   const goal = 200000;
   const current = 75000;
@@ -30,14 +34,19 @@ export default function Dashboard() {
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <ThemedText style={[styles.brand, { color: accent }]}>COOPENERGIE</ThemedText>
+          <ThemedText style={[styles.brand, { color: darkGreen }]}>COOPENERGIE</ThemedText>
           <TouchableOpacity style={styles.bell}>
-            <ThemedText style={styles.bellEmoji}>🔔</ThemedText>
+                   <IconSymbol
+                     name="bell"
+                     size={24}
+                     weight="bold"
+                     color={theme === 'light' ? Colors.light.accentGreen : Colors.dark.accentGreen}
+                   />
           </TouchableOpacity>
         </View>
 
         <ThemedText type="title" style={styles.greeting}>
-          Bonjour Alliance 👋
+          Bonjour Alliance 
         </ThemedText>
 
         <View style={[styles.objectiveCard, { backgroundColor: darkGreen }] }>
@@ -59,7 +68,7 @@ export default function Dashboard() {
 
         <View style={styles.listHeader}> 
           <ThemedText style={styles.sectionTitle}>Contributions récentes</ThemedText>
-          <Link href="../cooperative/historique" style={styles.seeAllLink}>
+          <Link href="../cooperative/historique/[1]" style={styles.seeAllLink}>
             <ThemedText style={styles.seeAllText}>Voir tout</ThemedText>
           </Link>
         </View>
@@ -80,17 +89,12 @@ export default function Dashboard() {
         <View style={{ height: 120 }} />
       </ScrollView>
 
-      <Link href="../cooperative/cotiser">
-        <View style={[styles.fab, { backgroundColor: accent }]}> 
-          <ThemedText style={styles.fabPlus}>+</ThemedText>
-        </View>
-      </Link>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1 , marginTop: 12 },
   scroll: { padding: 20, paddingBottom: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   brand: { fontWeight: '800', fontSize: 16 },

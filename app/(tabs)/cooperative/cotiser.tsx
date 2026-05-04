@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { LoadingModal } from '@/components/ui/loading-modal';
 import { StatusModal } from '@/components/ui/status-modal';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
+
 export default function CotiserScreen() {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('Mobile Money');
@@ -15,6 +16,7 @@ export default function CotiserScreen() {
   const [status, setStatus] = useState<{ visible: boolean; status: 'success' | 'error'; title?: string; message?: string } | null>(null);
   const cyan = useThemeColor({}, 'cyanCard') as string;
   const darkGreen = useThemeColor({}, 'darkGreen') as string;
+  const text = useThemeColor({}, 'text') as string;
 
   function quickSet(val: number) {
     setAmount(String(val));
@@ -36,20 +38,20 @@ export default function CotiserScreen() {
       <ThemedText style={styles.label}>Montant (FCFA)</ThemedText>
       <Input placeholder="0" keyboardType="numeric" value={amount} onChangeText={setAmount} />
 
-      <View style={styles.quickRow}>
+      <ScrollView style={{height: 0 , padding: 12 ,maxHeight:74}} horizontal showsHorizontalScrollIndicator={false}>
         <TouchableOpacity style={styles.quickBox} onPress={() => quickSet(2000)}>
-          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: darkGreen }]}>2000 FCFA</ThemedText>
+          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: text}]}>2000 FCFA</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.quickBox} onPress={() => quickSet(5000)}>
-          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: darkGreen }]}>5000 FCFA</ThemedText>
+          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: text }]}>5000 FCFA</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.quickBox} onPress={() => quickSet(10000)}>
-          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: darkGreen }]}>10000 FCFA</ThemedText>
+          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: text }]}>10000 FCFA</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.quickBox} onPress={() => quickSet(20000)}>
-          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: darkGreen }]}>20000 FCFA</ThemedText>
+          <ThemedText type="defaultSemiBold" style={[styles.quickText, { color: text }]}>20000 FCFA</ThemedText>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
 
       <ThemedText style={[styles.label, { marginTop: 12 }]}>Mode de paiement</ThemedText>
       <TouchableOpacity style={styles.methodRow} onPress={() => setMethod(method === 'Mobile Money' ? 'Carte' : 'Mobile Money')}>
@@ -72,10 +74,9 @@ export default function CotiserScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: { flex: 1, paddingVertical: 64 , paddingHorizontal: 24 },
   label: { marginTop: 12, marginBottom: 8 },
-  quickRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, marginTop: 8 },
-  quickBox: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: '#f5f5f5', alignItems: 'center', marginHorizontal: 4 },
+  quickBox: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: '#f5f5f5', alignItems: 'center', marginHorizontal: 4 , height: 50, justifyContent: 'center' , borderWidth: 1, borderColor: '#e7e7e7' },
   quickText: {},
   methodRow: { padding: 12, borderRadius: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e7e7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   note: { marginTop: 20, padding: 14, borderRadius: 12 },

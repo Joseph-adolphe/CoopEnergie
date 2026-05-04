@@ -29,9 +29,9 @@ export function Button({
   loading = false,
 }: ButtonProps) {
   const bgPrimary = useThemeColor({}, 'darkGreen');
-  const bgSecondary = useThemeColor({}, 'grayCard');
+  const bgSecondary = useThemeColor({}, 'bg');
   const accent = useThemeColor({}, 'accentGreen');
-  const bg = useThemeColor({}, 'bg');
+
 
   const height = size === 'sm' ? 36 : size === 'lg' ? 56 : 44;
 
@@ -39,7 +39,7 @@ export function Button({
     styles.button,
     { height, borderRadius: spacing.rMd },
     variant === 'primary' && { backgroundColor: bgPrimary },
-    variant === 'secondary' && { backgroundColor: bgSecondary },
+    variant === 'secondary' && { backgroundColor: bgSecondary , borderWidth: 1 , borderBlockColor: bgPrimary},
     variant === 'ghost' && { backgroundColor: 'transparent' },
     variant === 'icon' && { paddingHorizontal: 12, width: height, borderRadius: height / 2, backgroundColor: 'transparent' },
     disabled && { opacity: 0.5 },
@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     flexDirection: 'row',
   },
-  content: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  content: { flexDirection: 'row', alignItems: 'center', gap: 8  },
   title: { marginLeft: 8, fontSize: 16 },
 });

@@ -61,19 +61,19 @@ export default function Register() {
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title">Créez votre compte</ThemedText>
-      <ThemedText style={styles.subtitle}>Remplissez le formulaire pour commencer</ThemedText>
+      <ThemedText type='text' style={styles.subtitle}>Remplissez le formulaire pour commencer</ThemedText>
 
       <View style={styles.form}>
-        <Input placeholder="Nom complet" value={name} onChangeText={setName} />
+        <Input  placeholder="Nom complet" value={name} onChangeText={setName} />
         {errors.name ? <ThemedText style={styles.error}>{errors.name}</ThemedText> : null}
 
-        <Input placeholder="Téléphone (+237...)" value={phone} onChangeText={setPhone} />
+        <Input  placeholder="Téléphone (+237...)" value={phone} onChangeText={setPhone} />
         {errors.phone ? <ThemedText style={styles.error}>{errors.phone}</ThemedText> : null}
 
-        <Input placeholder="Email" value={email} onChangeText={setEmail} />
+        <Input  placeholder="Email" value={email} onChangeText={setEmail} />
         {errors.email ? <ThemedText style={styles.error}>{errors.email}</ThemedText> : null}
 
-        <Input placeholder="Mot de passe" secureTextEntry value={password} onChangeText={setPassword} />
+        <Input  placeholder="Mot de passe" secureTextEntry value={password} onChangeText={setPassword} />
         {errors.password ? <ThemedText style={styles.error}>{errors.password}</ThemedText> : null}
 
         <Button title="S'inscrire" variant="primary" onPress={onSubmit} />
@@ -89,7 +89,7 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 },
+  container: { flex: 1, padding: 24  , alignContent: 'center' , justifyContent: 'center' },
   subtitle: { marginTop: 8, marginBottom: 12 },
   form: { width: '100%', gap: 12 },
   error: { color: '#c82323', marginBottom: 6 },

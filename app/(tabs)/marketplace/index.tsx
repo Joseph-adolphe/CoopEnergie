@@ -50,16 +50,13 @@ export default function Catalogue() {
           </TouchableOpacity>
         )}
       />
-
-      <View style={[styles.footerNote, { backgroundColor: bgNote }]}> 
-        <ThemedText style={styles.footerText}>Tous les fournisseurs sont vérifiés et évalués par la communauté.</ThemedText>
-      </View>
+      <ThemedText style={styles.footerText}>Tous les fournisseurs sont vérifiés et évalués par la communauté.</ThemedText>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, paddingTop: 48 , paddingHorizontal: 16 },
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 12, borderRadius: 10, marginBottom: 12 },
   cardLeft: { marginRight: 12 },
   cardBody: { flex: 1 },
@@ -68,6 +65,5 @@ const styles = StyleSheet.create({
   price: { marginTop: 6, fontSize: 18 },
   available: { color: '#138a2d', fontWeight: '600' },
   link: { marginTop: 8, color: '#00450D' },
-  footerNote: { padding: 14, borderRadius: 10, marginTop: 12 },
-  footerText: { color: '#fff' },
+  footerText: { fontSize: 8 },
 });

@@ -22,6 +22,7 @@ const MAPPING = {
   'building.2.fill': 'apartment',
   'person.3.fill': 'group',
   'person.fill': 'person',
+  'bell': 'notifications',
 } as IconMapping;
 
 /**

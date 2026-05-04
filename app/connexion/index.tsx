@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { LoadingModal } from '@/components/ui/loading-modal';
 import { StatusModal } from '@/components/ui/status-modal';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { register } from 'node:module';
 
 const phoneRegex = /^\+?[0-9]{6,15}$/;
 
@@ -89,6 +90,8 @@ export default function Connexion() {
         <TouchableOpacity style={[styles.googleBtn, { borderColor: primaryColor }]}> 
           <ThemedText style={{ textAlign: 'center' }}>Continuer avec Google</ThemedText>
         </TouchableOpacity>
+
+         <Button title="pas de compte ?  incrivez vous" variant="ghost" onPress={() => router.push('/inscription')} />
       </View>
 
       <LoadingModal visible={loading} message="Connexion en cours..." />
@@ -105,11 +108,11 @@ export default function Connexion() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 },
+  container: { flex: 1, padding: 24  , alignContent: 'center' , justifyContent: 'center' },
   subtitle: { marginTop: 8, marginBottom: 18 },
   form: { width: '100%', gap: 12 },
   error: { color: '#c82323', marginBottom: 6 },
   forgotLink: { alignSelf: 'flex-end', marginVertical: 6 },
   forgotText: { color: '#00450D' },
-  googleBtn: { marginTop: 12, paddingVertical: 12, borderRadius: 12, borderWidth: 2 },
+  googleBtn: { marginTop: 8, paddingVertical: 8, borderRadius: 12, borderWidth: 2 },
 });

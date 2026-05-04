@@ -55,14 +55,16 @@ export default function KitDetail() {
 
   return (
     <ThemedView style={styles.container}>
-      <Image source={require('../../../../assets/images/partial-react-logo.png')} style={styles.image} resizeMode="contain" />
+      <Image source={require('../../../../assets/images/placeholder.png')} style={styles.image} resizeMode="contain" />
 
       <ThemedText type="title">Kit solaire autonome 200W</ThemedText>
 
-      <View style={styles.row}><ThemedText>Prix total</ThemedText><ThemedText type="defaultSemiBold">180 000 FCFA</ThemedText></View>
-      <View style={styles.row}><ThemedText>Description</ThemedText><ThemedText>1 panneau 200W, 1 batterie 12V, 1 régulateur, câbles et accessoires</ThemedText></View>
-      <View style={styles.row}><ThemedText>Garantie</ThemedText><ThemedText>2 ans</ThemedText></View>
-      <View style={styles.row}><ThemedText>Livraison estimée</ThemedText><ThemedText>7 jours</ThemedText></View>
+      <View style={styles.row}><ThemedText type='text'>Prix total</ThemedText><ThemedText type="defaultSemiBold">180 000 FCFA</ThemedText></View>
+      <View style={styles.description}><ThemedText type='text'>Description :</ThemedText>
+       <ThemedText type='text' style={{maxWidth: '100%' , textOverflow:'break-word' }}> 1 panneau 200W , 1 batterie 12V,  1 régulateur,  câbles et accessoires</ThemedText>
+      </View>
+      <View style={styles.row}><ThemedText type='text'>Garantie</ThemedText><ThemedText type='defaultSemiBold'>2 ans</ThemedText></View>
+      <View style={styles.row}><ThemedText type='text'>Livraison estimée</ThemedText><ThemedText type='defaultSemiBold'>7 jours</ThemedText></View>
 
       <View style={styles.divider} />
 
@@ -70,8 +72,8 @@ export default function KitDetail() {
       <View style={styles.progressBar}>
         <View style={[styles.progressFill, { width: `${percent}%`, backgroundColor: accent }]} />
       </View>
-      <ThemedText style={{ marginTop: 6 }}>{progress.toLocaleString()} / {total.toLocaleString()} FCFA</ThemedText>
-      <ThemedText style={{ marginTop: 6 }}>{percent}%</ThemedText>
+      <ThemedText type='text' style={{ marginTop: 6 }}>{progress.toLocaleString()} / {total.toLocaleString()} FCFA</ThemedText>
+      {/* <ThemedText type='text' style={{ marginTop: 6 }}>{percent}%</ThemedText> */}
 
       <View style={{ marginTop: 20 }}>
         <Button title="Soumettre au vote" variant="primary" onPress={openVote} />
@@ -90,9 +92,12 @@ export default function KitDetail() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+   container: { flex: 1, padding: 16  , alignContent: 'center' , justifyContent: 'center' },
   image: { width: '100%', height: 220, borderRadius: 12, backgroundColor: '#f4f4f4', marginBottom: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
+  description : {
+    flexDirection: 'column', justifyContent: 'space-between', marginTop: 8 , gap : 4
+  },
   divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.06)', marginVertical: 12 },
   progressBar: { height: 12, backgroundColor: '#eee', borderRadius: 8, overflow: 'hidden', marginTop: 8 },
   progressFill: { height: '100%' },
