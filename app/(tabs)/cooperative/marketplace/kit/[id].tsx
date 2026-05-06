@@ -69,7 +69,7 @@ export default function KitDetail() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 140  }}>
-        <Image source={require('../../../../assets/images/placeholder.png')} style={styles.image} resizeMode="cover" />
+        <Image source={require('@/assets/images/placeholder.png')} style={styles.image} resizeMode="cover" />
 
        <View style={styles.meta}>
 

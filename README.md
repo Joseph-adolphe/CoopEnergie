@@ -74,3 +74,14 @@ Les tokens de couleurs et d'espacement sont centralisés dans `constants/theme.t
 - `card.tsx`, `list-item.tsx`, `dialog.tsx`
 - `tabs.tsx`, `avatar.tsx`, `icon-symbol.tsx`
 
+
+## Identifiants de test
+
+Utilisez ces mots de passe de test pour valider rapidement les redirections :
+
+- Fournisseur : mot de passe `fournisseur123` (redirection vers `/fournisseurs`).
+- Utilisateur standard : mot de passe `password123` (redirection vers `/accueil`).
+
+> Important : ces mots de passe sont uniquement pour le prototype local. Ne laissez pas de secrets codés en dur en production.
+
+

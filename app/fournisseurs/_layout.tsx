@@ -1,6 +1,52 @@
+import { Tabs } from 'expo-router';
 import React from 'react';
-import { Stack } from 'expo-router';
+
+import { HapticTab } from '@/components/haptic-tab';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function FournisseursLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  const colorScheme = useColorScheme();
+
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].accentGreen,
+        headerShown: false,
+        tabBarButton: HapticTab,
+      }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Accueil',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="produits"
+        options={{
+          title: ' Produits',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="commandes"
+        options={{
+          title: ' Commandes',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="tray.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="profil/[id]"
+        options={{
+          title: 'Compte',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+        }}
+      />
+    </Tabs>
+  );
 }

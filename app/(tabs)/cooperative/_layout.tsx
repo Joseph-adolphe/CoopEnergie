@@ -7,6 +7,7 @@ export default function CooperativeLayout() {
         <Stack.Screen name="cotiser"  />
         <Stack.Screen name="creation"  />
         <Stack.Screen name="membres"  />
+        <Stack.Screen name="marketplace"  />
         <Stack.Screen name="vote"  />
         <Stack.Screen name="vote-admin"  />
         <Stack.Screen name="historique/[id]"  />

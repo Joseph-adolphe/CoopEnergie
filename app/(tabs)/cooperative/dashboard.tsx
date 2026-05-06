@@ -126,6 +126,9 @@ export default function CooperativeDashboard() {
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cooperative/cotiser')}>
             <ThemedText>Cotisations</ThemedText>
           </TouchableOpacity>
+           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cooperative/marketplace')}>
+            <ThemedText>MarketPlace</ThemedText>
+          </TouchableOpacity>
           {/* <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cooperative/historique/1')}>
             <ThemedText>Historiques</ThemedText>
           </TouchableOpacity>

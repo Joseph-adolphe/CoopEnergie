@@ -19,7 +19,7 @@ export default function Produits() {
       <FlatList
         data={PRODUCTS}
         keyExtractor={(i) => i.id}
-        contentContainerStyle={{ padding: 20 }}
+        contentContainerStyle={{ marginTop: 20 }}
         renderItem={({ item }) => (
           <ProductCard name={item.name} price={item.price} stock={item.stock} available={item.available} />
         )}
@@ -29,5 +29,5 @@ export default function Produits() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+    container: { flex: 1 , paddingTop: 48 , paddingHorizontal: 20 },
 });

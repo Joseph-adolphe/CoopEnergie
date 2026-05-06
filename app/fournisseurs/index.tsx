@@ -27,7 +27,7 @@ export default function FournisseursDashboard() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <ScrollView contentContainerStyle={{ padding: 12 , marginTop: 48 , paddingBottom: 64 }}>
         <ThemedText type="title">Tableau de bord</ThemedText>
 
         <View style={styles.grid}>

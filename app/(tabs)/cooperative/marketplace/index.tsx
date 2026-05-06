@@ -32,7 +32,7 @@ export default function MarketplaceIndex() {
         keyExtractor={(i) => i.id}
         contentContainerStyle={{ paddingVertical: 12 }}
         renderItem={({ item }) => (
-          <Link href={`/marketplace/kit/${item.id}`} asChild>
+          <Link href={`/cooperative/marketplace/kit/${item.id}`} asChild>
             <ProductCard name={item.name} price={item.price} stock={item.stock} available={item.available} />
           </Link>
         )}

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { LoadingModal } from '@/components/ui/loading-modal';
 import { StatusModal } from '@/components/ui/status-modal';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { register } from 'node:module';
+import { useAuth } from '@/context/AuthContext';
 
 const phoneRegex = /^\+?[0-9]{6,15}$/;
 
@@ -18,7 +18,7 @@ const loginSchema = z.object({
   identifier: z
     .string()
     .min(1, 'Email ou téléphone requis')
-    .refine((v) => z.string().email().safeParse(v).success || phoneRegex.test(v), {
+    .refine((v) => z.email().safeParse(v).success || phoneRegex.test(v), {
       message: 'Entrez un email ou un téléphone valide',
     }),
   password: z.string().min(6, 'Mot de passe trop court (min 6 caractères)'),
@@ -35,6 +35,8 @@ export default function Connexion() {
     status: 'success',
   });
 
+  const { loginAsSupplier } = useAuth();
+
   const primaryColor = useThemeColor({}, 'darkGreen') as string;
 
   function onSubmit() {
@@ -43,18 +45,35 @@ export default function Connexion() {
       setErrors({});
       setLoading(true);
 
-      // simulate authentication
-      setTimeout(() => {
-        setLoading(false);
-        // fake success for any password 'password123', else error
-        if (password === 'password123') {
-          setStatus({ visible: true, status: 'success', title: 'Connexion réussie', message: 'Redirection en cours...' });
-          setTimeout(() => {
-            setStatus((s) => ({ ...s, visible: false }));
-            router.replace('/accueil');
-          }, 900);
-        } else {
+      // simulate authentication and check supplier role
+      setTimeout(async () => {
+        try {
+          const supplierOk = await loginAsSupplier(password);
+          setLoading(false);
+
+          if (supplierOk) {
+            setStatus({ visible: true, status: 'success', title: 'Connexion fournisseur', message: "Redirection vers l'interface fournisseur..." });
+            setTimeout(() => {
+              setStatus((s) => (s ? { ...s, visible: false } : s));
+              router.replace('/fournisseurs');
+            }, 900);
+            return;
+          }
+
+          // fallback: regular user success for password 'password123'
+          if (password === 'password123') {
+            setStatus({ visible: true, status: 'success', title: 'Connexion réussie', message: 'Redirection en cours...' });
+            setTimeout(() => {
+              setStatus((s) => (s ? { ...s, visible: false } : s));
+              router.replace('/accueil');
+            }, 900);
+            return;
+          }
+
           setStatus({ visible: true, status: 'error', title: 'Identifiants incorrects', message: 'Veuillez réessayer.' });
+        } catch (e) {
+          setLoading(false);
+          setStatus({ visible: true, status: 'error', title: 'Erreur', message: 'Impossible de vérifier le compte fournisseur.' });
         }
       }, 900);
     } catch (err) {

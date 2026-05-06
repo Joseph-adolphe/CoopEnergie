@@ -22,7 +22,7 @@ export default function Commandes() {
       <FlatList
         data={ORDERS}
         keyExtractor={(o) => o.id}
-        contentContainerStyle={{ padding: 20 }}
+        contentContainerStyle={{ marginTop: 20 }}
         renderItem={({ item }) => (
           <Card style={styles.orderCard}>
             <View style={styles.rowHeader}>
@@ -49,7 +49,7 @@ export default function Commandes() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1 , paddingTop: 48 , paddingHorizontal: 20 },
   orderCard: { marginBottom: 12, padding: 12 },
   rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   orderFooter: { marginTop: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

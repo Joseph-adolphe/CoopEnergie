@@ -26,6 +26,7 @@ const MAPPING = {
   'lock': 'lock',
   'globe': 'language',
   'rectangle.portrait.and.arrow.right': 'logout',
+  'tray.fill' : 'area-chart'
 } as IconMapping;
 
 /**
