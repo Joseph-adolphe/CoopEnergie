@@ -50,7 +50,7 @@ export default function ForgotPassword() {
         <Input placeholder="Email ou téléphone" value={identifier} onChangeText={setIdentifier} />
         {error ? <ThemedText style={{ color: '#c82323' }}>{error}</ThemedText> : null}
 
-        <Button title="Envoyer" variant="primary" onPress={send} />
+        <Button style={{margin: 8}} title="Envoyer" variant="primary" onPress={send} />
       </View>
 
       <LoadingModal visible={loading} message="Envoi du code..." />
@@ -60,6 +60,6 @@ export default function ForgotPassword() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 },
+  container: { flex: 1, padding: 24 , paddingTop: 48 },
   body: { marginTop: 12 },
 });
