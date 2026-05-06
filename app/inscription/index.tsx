@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { z, ZodError } from 'zod';
 
@@ -60,26 +60,29 @@ export default function Register() {
 
   return (
     <ThemedView style={styles.container}>
+       <ScrollView contentContainerStyle={{ flexGrow: 1,  justifyContent: 'center' }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+               <Image source={require('@/assets/images/logo.jpg')} style={styles.logo} resizeMode="contain" />
       <ThemedText type="title">Créez votre compte</ThemedText>
       <ThemedText type='text' style={styles.subtitle}>Remplissez le formulaire pour commencer</ThemedText>
 
       <View style={styles.form}>
-        <Input  placeholder="Nom complet" value={name} onChangeText={setName} />
+        <Input label='Nom'  placeholder="Nom complet" value={name} onChangeText={setName} />
         {errors.name ? <ThemedText style={styles.error}>{errors.name}</ThemedText> : null}
 
-        <Input  placeholder="Téléphone (+237...)" value={phone} onChangeText={setPhone} />
+        <Input label='Telephone' placeholder="Téléphone (+237...)" value={phone} onChangeText={setPhone} />
         {errors.phone ? <ThemedText style={styles.error}>{errors.phone}</ThemedText> : null}
 
-        <Input  placeholder="Email" value={email} onChangeText={setEmail} />
+        <Input label='Email' placeholder="Email" value={email} onChangeText={setEmail} />
         {errors.email ? <ThemedText style={styles.error}>{errors.email}</ThemedText> : null}
 
-        <Input  placeholder="Mot de passe" secureTextEntry value={password} onChangeText={setPassword} />
+        <Input label='Mot de passe' placeholder="Mot de passe" secureTextEntry value={password} onChangeText={setPassword} />
         {errors.password ? <ThemedText style={styles.error}>{errors.password}</ThemedText> : null}
 
         <Button title="S'inscrire" variant="primary" onPress={onSubmit} />
 
         <Button title="Déjà un compte ? Se connecter" variant="ghost" onPress={() => router.push('/connexion')} />
       </View>
+       </ScrollView>
 
       <LoadingModal visible={loading} message="Création de votre compte..." />
 
@@ -89,8 +92,9 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24  , alignContent: 'center' , justifyContent: 'center' },
+  container: { flex: 1, padding: 24  , alignContent: 'center' , justifyContent: 'center'  },
   subtitle: { marginTop: 8, marginBottom: 12 },
-  form: { width: '100%', gap: 12 },
-  error: { color: '#c82323', marginBottom: 6 },
+  form: { width: '100%', gap: 8 },
+  error: { color: '#c82323', marginBottom: 4 },
+  logo: { width: 90, height: 90, marginBottom: 12 },
 });

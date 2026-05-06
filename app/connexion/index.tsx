@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { z, ZodError } from 'zod';
 
@@ -71,14 +71,15 @@ export default function Connexion() {
 
   return (
     <ThemedView style={styles.container}>
+       <Image source={require('@/assets/images/logo.jpg')} style={styles.logo} resizeMode="contain" />
       <ThemedText type="title">Bienvenue !</ThemedText>
       <ThemedText style={styles.subtitle}>Connectez-vous à votre compte</ThemedText>
 
       <View style={styles.form}>
-        <Input placeholder="Email ou téléphone" value={identifier} onChangeText={setIdentifier} />
+        <Input label='Email/Telephone' placeholder="Email ou téléphone" value={identifier} onChangeText={setIdentifier} />
         {errors.identifier ? <ThemedText style={styles.error}>{errors.identifier}</ThemedText> : null}
 
-        <Input placeholder="Mot de passe" value={password} onChangeText={setPassword} secureTextEntry />
+        <Input label='Mot de passe' placeholder="Mot de passe" value={password} onChangeText={setPassword} secureTextEntry />
         {errors.password ? <ThemedText style={styles.error}>{errors.password}</ThemedText> : null}
 
         <Link href="/connexion/forgot-password" style={styles.forgotLink}>
@@ -112,6 +113,7 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: 8, marginBottom: 18 },
   form: { width: '100%', gap: 12 },
   error: { color: '#c82323', marginBottom: 6 },
+  logo: { width: 90, height: 90, marginBottom: 12 },
   forgotLink: { alignSelf: 'flex-end', marginVertical: 6 },
   forgotText: { color: '#00450D' },
   googleBtn: { marginTop: 8, paddingVertical: 8, borderRadius: 12, borderWidth: 2 },

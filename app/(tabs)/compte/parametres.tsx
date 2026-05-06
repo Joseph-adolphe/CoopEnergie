@@ -2,15 +2,16 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
 
-import { ThemedView } from '@/components/themed-view';
+
 import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 
 export default function Parametres() {
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title">Paramètres</ThemedText>
       <ThemedText style={styles.body}>Réglages de l'application et du compte.</ThemedText>
-      <Link href="/compte" style={styles.next}>
+      <Link href="../compte" style={styles.next}>
         Retour
       </Link>
     </ThemedView>

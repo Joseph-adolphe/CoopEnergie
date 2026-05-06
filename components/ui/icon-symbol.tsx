@@ -23,6 +23,9 @@ const MAPPING = {
   'person.3.fill': 'group',
   'person.fill': 'person',
   'bell': 'notifications',
+  'lock': 'lock',
+  'globe': 'language',
+  'rectangle.portrait.and.arrow.right': 'logout',
 } as IconMapping;
 
 /**

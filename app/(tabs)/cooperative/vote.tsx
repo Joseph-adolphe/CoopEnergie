@@ -7,12 +7,14 @@ import { PieChart } from '@/components/ui/chart-pie';
 import { LoadingModal } from '@/components/ui/loading-modal';
 import { StatusModal } from '@/components/ui/status-modal';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { useRouter } from 'expo-router';
+
 
 export default function Vote() {
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ visible: boolean; status: 'success' | 'error'; title?: string; message?: string } | null>(null);
-
+  const router = useRouter();
   // sample results
   const yes = 7;
   const no = 3;
@@ -24,6 +26,7 @@ export default function Vote() {
       setLoading(false);
       setVoted(true);
       setStatus({ visible: true, status: 'success', title: 'Merci', message: `Votre vote (${choice === 'yes' ? 'Oui' : 'Non'}) a été pris en compte.` });
+      router.replace('/cooperative/dashboard');
     }, 900);
   }
 
@@ -31,12 +34,12 @@ export default function Vote() {
     <ThemedView style={styles.container}>
       <ThemedText type="title">Valider l'achat du kit solaire ?</ThemedText>
 
-      <View style={{ marginTop: 18 }}>
-        <Button title="✓  Oui, valider" variant="primary" onPress={() => cast('yes')} style={{ paddingVertical: 14, borderRadius: 12 }} />
+      <View style={{ marginTop: 24 }}>
+        <Button title="✓  Oui, valider" variant="primary" onPress={() => cast('yes')} style={{ paddingVertical: 14, borderRadius: 12 , height: 64}} />
       </View>
 
       <View style={{ marginTop: 12 }}>
-        <Button title="✕  Non, refuser" variant="secondary" onPress={() => cast('no')} style={{ paddingVertical: 14, borderRadius: 12, backgroundColor: '#c82323' }} />
+        <Button title="✕  Non, refuser" variant="secondary" onPress={() => cast('no')} style={{ paddingVertical: 14, borderRadius: 12, height: 64, backgroundColor: '#c82323' , borderBlockColor: '#c82323' , color : '#fff'  }} />
       </View>
 
       <View style={styles.results}> 
@@ -55,7 +58,7 @@ export default function Vote() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: { flex: 1, padding: 20 , paddingTop: 64},
   results: { marginTop: 18 },
   infoBox: { marginTop: 18, padding: 14, borderRadius: 12, backgroundColor: '#eef8f0' },
 });

@@ -1,130 +1,228 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Link } from 'expo-router';
+import { StyleSheet, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Avatar } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { spacing } from '@/constants/theme';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useColorScheme } from '@/hooks/use-color-scheme.web';
-import { Colors } from '@/constants/theme';
 
-type Contribution = { id: string; name: string; amount: number; date: string };
-
-const contributions: Contribution[] = [
-  { id: '1', name: 'Marie', amount: 10000, date: '20 Mai 2024 - 10:30' },
-  { id: '2', name: 'Paul', amount: 5000, date: '20 Mai 2024 - 09:15' },
-  { id: '3', name: 'Amina', amount: 20000, date: '19 Mai 2024 - 18:40' },
+// Sample data — replace by API data in production
+const MOCK_NONE: any[] = [];
+const MOCK_ONE = [
+	{
+		id: 'c1',
+		name: 'Coopérative Soleil',
+		role: 'Admin',
+		objective: 200000,
+		collected: 75000,
+		deadline: '12 jours',
+	},
+];
+const MOCK_MULTI = [
+	...MOCK_ONE,
+	{
+		id: 'c2',
+		name: 'Énergie Verte',
+		role: 'Membre',
+		objective: 150000,
+		collected: 45000,
+		deadline: '18 jours',
+	},
 ];
 
-export default function Dashboard() {
-  const darkGreen = useThemeColor({}, 'darkGreen');
-  const accent = useThemeColor({}, 'accentGreen');
-  const white = useThemeColor({}, 'white');
-    const theme = useColorScheme() ?? 'light';
+export default function AccueilIndex() {
+	const router = useRouter();
+	// Switch data here for preview: MOCK_NONE / MOCK_ONE / MOCK_MULTI
+	const cooperatives =  MOCK_ONE;
 
-  const goal = 200000;
-  const current = 75000;
-  const percent = Math.round((current / goal) * 100);
+	const darkGreen = useThemeColor({}, 'darkGreen') as string;
+	const accent = useThemeColor({}, 'accentGreen') as string;
+	const cardBg = useThemeColor({}, 'white') as string;
+	const border = useThemeColor({}, 'border') as string;
 
-  return (
-    <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <ThemedText style={[styles.brand, { color: darkGreen }]}>COOPENERGIE</ThemedText>
-          <TouchableOpacity style={styles.bell}>
-                   <IconSymbol
-                     name="bell"
-                     size={24}
-                     weight="bold"
-                     color={theme === 'light' ? Colors.light.accentGreen : Colors.dark.accentGreen}
-                   />
-          </TouchableOpacity>
-        </View>
+	function renderEmpty() {
+		return (
+			<View style={{ marginTop: 20 , flex: 1 , justifyContent: 'center' , alignItems: 'center' , width: '100%' }}>
+				<Card style={styles.emptyCard}>
+					<View style={styles.emptyInner}>
+						<Avatar size={72} name={''} />
+						<ThemedText type="defaultSemiBold" style={{ marginTop: 12 , textAlign: 'center'}}>
+							Vous n'êtes membre d'aucune coopérative pour le moment.
+						</ThemedText>
+						<ThemedText style={{ marginTop: 8, textAlign: 'center' }}>
+							Rejoignez ou créez une coopérative pour participer à des projets, contribuer et prendre des décisions ensemble.
+						</ThemedText>
 
-        <ThemedText type="title" style={styles.greeting}>
-          Bonjour Alliance 
-        </ThemedText>
+						<Button title="Créer  une coopérative" variant="primary" onPress={() => router.push('../cooperative/creation/01_creation')} style={{ marginTop: 18 }} />
+					</View>
+				</Card>
+			</View>
+		);
+	}
 
-        <View style={[styles.objectiveCard, { backgroundColor: darkGreen }] }>
-          <ThemedText style={[styles.objectiveLabel, { color: white }]}>Objectif de la coopérative</ThemedText>
-          <ThemedText style={[styles.objectiveAmount, { color: white }]}>{`${current.toLocaleString('fr-FR')} / ${goal.toLocaleString('fr-FR')} FCFA`}</ThemedText>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressBar, { width: `${Math.min(percent, 100)}%`, backgroundColor: accent }]} />
-          </View>
-          <View style={styles.objectiveFooter}>
-            <ThemedText style={[styles.small, { color: white }]}>{`${percent}% atteint`}</ThemedText>
-            <ThemedText style={[styles.small, { color: white }]}>Objectif en 12 jours</ThemedText>
-          </View>
-        </View>
+	function ProgressCard({ coop }: { coop: any }) {
+		const percent = Math.round((coop.collected / coop.objective) * 100);
+		return (
+			<View style={[styles.progressCard, { backgroundColor: darkGreen }] }>
+				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+					<View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+						<Avatar size={48} name={coop.name} />
+						<View>
+							<ThemedText style={{ color: '#fff', fontWeight: '700' }}>{coop.name}</ThemedText>
+							<ThemedText style={{ color: '#fff', opacity: 0.9 }}>{`Objectif : ${coop.objective.toLocaleString()} FCFA`}</ThemedText>
+						</View>
+					</View>
+					{/* <View style={styles.roleBadge}>
+						<ThemedText style={{ color: darkGreen }}>{coop.role}</ThemedText>
+					</View> */}
+				</View>
 
-        <Card style={styles.infoCard}>
-          <ThemedText style={styles.infoTitle}>🔒  Coffre sécurisé</ThemedText>
-          <ThemedText style={styles.infoBody}>Les fonds sont sécurisés et le retrait est bloqué jusqu'à validation du vote.</ThemedText>
-        </Card>
+				<View style={{ marginTop: 12 }}>
+					<ThemedText style={{ color: '#fff', fontSize: 28, fontWeight: '700' }}>{`${coop.collected.toLocaleString()} / ${coop.objective.toLocaleString()} FCFA`}</ThemedText>
+				</View>
 
-        <View style={styles.listHeader}> 
-          <ThemedText style={styles.sectionTitle}>Contributions récentes</ThemedText>
-          <Link href="../cooperative/historique/[1]" style={styles.seeAllLink}>
-            <ThemedText style={styles.seeAllText}>Voir tout</ThemedText>
-          </Link>
-        </View>
+				<View style={styles.progressWrap}>
+					<View style={[styles.progressBar, { width: `${percent}%`, backgroundColor: accent }]} />
+				</View>
 
-        {contributions.map((c) => (
-          <View key={c.id} style={styles.contributionRow}>
-            <View style={styles.leftRow}>
-              <Avatar name={c.name} size={48} />
-              <View style={styles.meta}>
-                <ThemedText style={styles.name}>{c.name}</ThemedText>
-                <ThemedText style={styles.date}>{c.date}</ThemedText>
-              </View>
-            </View>
-            <ThemedText style={styles.amount}>{c.amount.toLocaleString('fr-FR')} FCFA</ThemedText>
-          </View>
-        ))}
+				<View style={styles.progressFooter}>
+					<ThemedText style={{ color: '#fff', opacity: 0.95 }}>{`${percent}% atteint`}</ThemedText>
+					<ThemedText style={{ color: '#fff', opacity: 0.95 }}>{`Objectif en ${coop.deadline}`}</ThemedText>
+				</View>
+			</View>
+		);
+	}
 
-        <View style={{ height: 120 }} />
-      </ScrollView>
+	function renderSingle(coop: any) {
+		const contributions = [
+			{ id: '1', name: 'Marie', date: '20 Mai 2024 - 10:30', amount: '10 000 FCFA' },
+			{ id: '2', name: 'Paul', date: '20 Mai 2024 - 09:15', amount: '5 000 FCFA' },
+			{ id: '3', name: 'Amina', date: '19 Mai 2024 - 18:40', amount: '20 000 FCFA' },
+		];
 
-    </ThemedView>
-  );
+		return (
+			<>
+				<ProgressCard coop={coop} />
+
+				<View style={[styles.activityCard, { borderColor: border , marginBottom : 12}]}> 
+					<View style={{ flex: 1 }}>
+						<ThemedText type="defaultSemiBold">Vote en cours</ThemedText>
+						<ThemedText type="text">Vote sur l'achat d'équipements solaires</ThemedText>
+					</View>
+					<TouchableOpacity onPress={() => router.push('../cooperative/vote') }>
+						<ThemedText style={{ color: darkGreen }}>Voir le vote</ThemedText>
+					</TouchableOpacity>
+				</View>
+
+				
+					<View style={styles.rowHeader}>
+						<ThemedText type="defaultSemiBold">Contributions récentes</ThemedText>
+						<TouchableOpacity onPress={() => router.push('/cooperative/historique/1')}>
+							<ThemedText style={{ color: darkGreen }}>Voir tout</ThemedText>
+						</TouchableOpacity>
+					</View>
+                   <View style={{ marginTop: 8 }}>
+					{contributions.map((item) => {
+					return (
+                         <View style={styles.row} key={item.id}>
+							<Avatar name={item.name} size={44} />
+							<View style={{ flex: 1, marginLeft: 12 }}>
+								<ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+								<ThemedText type="text">{item.date}</ThemedText>
+							</View>
+							<ThemedText type="defaultSemiBold">{item.amount}</ThemedText>
+						</View>
+						)
+					})}
+				   </View>
+			</>
+		);
+	}
+
+	function renderMultiple(list: any[]) {
+		return (
+			<>
+				<View style={{ marginTop: 12 }}>
+					<ThemedText type="defaultSemiBold">Mes coopératives</ThemedText>
+				</View>
+
+				<View style={{ marginTop: 8, gap: 12 }}>
+					{list.map((c, i) => (
+						<View key={c.id} style={[styles.multiCard, { backgroundColor: i === 0 ? darkGreen : cardBg, borderColor: border }] }>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+								<Avatar size={44} name={c.name} />
+								<View style={{ flex: 1 }}>
+									<ThemedText style={i === 0 ? { color: '#fff', fontWeight: '700' } : undefined}>{c.name}</ThemedText>
+									<ThemedText style={i === 0 ? { color: '#fff', opacity: 0.95 } : undefined}>{`Objectif : ${c.objective.toLocaleString()} FCFA`}</ThemedText>
+								</View>
+								<TouchableOpacity onPress={() => router.push('/cooperative/dashboard') }>
+									<IconSymbol name={'chevron.right' as any} size={20} color={i === 0 ? '#fff' : darkGreen} />
+								</TouchableOpacity>
+							</View>
+
+							<View style={{ marginTop: 12 }}>
+								<View style={styles.progressWrap}>
+									<View style={[styles.progressBar, { width: `${Math.round((c.collected/c.objective)*100)}%`, backgroundColor: accent }]} />
+								</View>
+							</View>
+						</View>
+					))}
+				</View>
+
+				<View style={{ marginTop: spacing.rLg }}>
+					<ThemedText type="defaultSemiBold">Activités récentes</ThemedText>
+					<Card style={{ marginTop: 8 }}>
+						<View style={styles.row}>
+							<IconSymbol name={'paperplane.fill' as any} size={20} color={darkGreen} />
+							<View style={{ flex: 1, marginLeft: 12 }}>
+								<ThemedText type="defaultSemiBold">Vote en cours - Coopérative Soleil</ThemedText>
+								<ThemedText type="text">Vote sur l'achat d'équipements solaires</ThemedText>
+							</View>
+							<ThemedText>2 jours restants</ThemedText>
+						</View>
+					</Card>
+				</View>
+			</>
+		);
+	}
+
+	return (
+		<ThemedView style={styles.container}>
+			<ScrollView contentContainerStyle={{ padding: 20 , flex: 1 }} showsVerticalScrollIndicator={false}>
+				<View style={styles.headerRow}>
+					<ThemedText type="title">Bonjour Alliance </ThemedText>
+					<TouchableOpacity onPress={() => router.push('/compte/notifications')}>
+						<IconSymbol name={'bell' as any} size={22} color={darkGreen} />
+					</TouchableOpacity>
+				</View>
+
+				{cooperatives.length === 0 && renderEmpty()}
+				{cooperatives.length === 1 && renderSingle(cooperatives[0])}
+				{cooperatives.length > 1 && renderMultiple(cooperatives)}
+
+			</ScrollView>
+		</ThemedView>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 , marginTop: 12 },
-  scroll: { padding: 20, paddingBottom: 40 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  brand: { fontWeight: '800', fontSize: 16 },
-  bell: { padding: 6 },
-  bellEmoji: { fontSize: 20 },
-  greeting: { marginTop: 8, marginBottom: 16 },
-  objectiveCard: {
-    borderRadius: spacing.rLg,
-    padding: 18,
-    marginBottom: 16,
-  },
-  objectiveLabel: { fontSize: 14, marginBottom: 6 },
-  objectiveAmount: { fontSize: 32, fontWeight: '700', marginBottom: 10 },
-  progressTrack: { backgroundColor: 'rgba(255,255,255,0.12)', height: 12, borderRadius: 8, overflow: 'hidden', marginBottom: 12 },
-  progressBar: { height: '100%' },
-  objectiveFooter: { flexDirection: 'row', justifyContent: 'space-between' },
-  small: { fontSize: 14 },
-  infoCard: { marginBottom: 20 },
-  infoTitle: { fontWeight: '700', fontSize: 16, marginBottom: 6 },
-  infoBody: { color: '#333' },
-  listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { fontSize: 18, fontWeight: '700' },
-  seeAllLink: { padding: 6 },
-  seeAllText: { color: '#0f8a4b' },
-  contributionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.05)' },
-  leftRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  meta: { marginLeft: 12 },
-  name: { fontSize: 16, fontWeight: '700' },
-  date: { fontSize: 13, color: '#6b6b6b' },
-  amount: { fontSize: 18, fontWeight: '700' },
-  fab: { position: 'absolute', right: 20, bottom: 28, width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 },
-  fabPlus: { color: '#fff', fontSize: 34, lineHeight: 36 },
+	container: { flex: 1  },
+	headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4, marginTop: 24 },
+	emptyCard: { paddingVertical: 40, alignItems: 'center' },
+	emptyInner: { alignItems: 'center' },
+	progressCard: { marginTop: 12, padding: 18, borderRadius: 12 },
+	roleBadge: { backgroundColor: '#fff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+	progressWrap: { width: '100%', height: 10, backgroundColor: '#e9f3ea', borderRadius: 8, marginTop: 12, overflow: 'hidden' },
+	progressBar: { height: '100%', borderRadius: 8 },
+	progressFooter: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+	activityCard: { marginTop: 12, padding: 14, borderRadius: 12, backgroundColor: '#fff', borderWidth: 1 },
+	row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+	rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+	multiCard: { padding: 16, borderRadius: 12 },
 });
+
