@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
@@ -11,79 +11,97 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { spacing } from '@/constants/theme';
 
-// Sample data — replace by API data in production
-const MOCK_NONE: any[] = [];
-const MOCK_ONE = [
-	{
-		id: 'c1',
-		name: 'Coopérative Soleil',
-		role: 'Admin',
-		objective: 200000,
-		collected: 75000,
-		deadline: '12 jours',
-	},
-];
-const MOCK_MULTI = [
-	...MOCK_ONE,
-	{
-		id: 'c2',
-		name: 'Énergie Verte',
-		role: 'Membre',
-		objective: 150000,
-		collected: 45000,
-		deadline: '18 jours',
-	},
-];
+// ===== IMPORT SUPABASE =====
+import { getAllCooperatives, getContributions } from '@/services/supabaseService';
 
 export default function AccueilIndex() {
 	const router = useRouter();
-	// Switch data here for preview: MOCK_NONE / MOCK_ONE / MOCK_MULTI
-	const cooperatives =  MOCK_ONE;
+	const [cooperatives, setCooperatives] = useState<any[]>([]);
+	const [contributions, setContributions] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
 	const darkGreen = useThemeColor({}, 'darkGreen') as string;
 	const accent = useThemeColor({}, 'accentGreen') as string;
 	const cardBg = useThemeColor({}, 'white') as string;
 	const border = useThemeColor({}, 'border') as string;
 
+	// ===== RÉCUPÉRER LES DONNÉES DEPUIS SUPABASE =====
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	const fetchData = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			// Récupère les coopératives
+			const coopsData = await getAllCooperatives();
+			console.log('✅ Coopératives :', coopsData);
+			setCooperatives(coopsData || []);
+
+			// Si une coopérative existe, récupère ses contributions
+			if (coopsData && coopsData.length > 0) {
+				const contribData = await getContributions(coopsData[0].id);
+				console.log('✅ Contributions :', contribData);
+				setContributions(contribData || []);
+			}
+		} catch (err: any) {
+			console.error('❌ Erreur :', err.message);
+			setError(err.message || 'Erreur lors du chargement');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// ===== RENDER EMPTY =====
 	function renderEmpty() {
 		return (
-			<View style={{ marginTop: 20 , flex: 1 , justifyContent: 'center' , alignItems: 'center' , width: '100%' }}>
+			<View style={{ marginTop: 20, flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
 				<Card style={styles.emptyCard}>
 					<View style={styles.emptyInner}>
 						<Avatar size={72} name={''} />
-						<ThemedText type="defaultSemiBold" style={{ marginTop: 12 , textAlign: 'center'}}>
+						<ThemedText type="defaultSemiBold" style={{ marginTop: 12, textAlign: 'center' }}>
 							Vous n'êtes membre d'aucune coopérative pour le moment.
 						</ThemedText>
 						<ThemedText style={{ marginTop: 8, textAlign: 'center' }}>
 							Rejoignez ou créez une coopérative pour participer à des projets, contribuer et prendre des décisions ensemble.
 						</ThemedText>
 
-						<Button title="Créer  une coopérative" variant="primary" onPress={() => router.push('../cooperative/creation/01_creation')} style={{ marginTop: 18 }} />
+						<Button
+							title="Créer une coopérative"
+							variant="primary"
+							onPress={() => router.push('../cooperative/creation/01_creation')}
+							style={{ marginTop: 18 }}
+						/>
 					</View>
 				</Card>
 			</View>
 		);
 	}
 
+	// ===== PROGRESS CARD =====
 	function ProgressCard({ coop }: { coop: any }) {
-		const percent = Math.round((coop.collected / coop.objective) * 100);
+		const percent = Math.round((coop.montant_actuel / coop.objectif_financier) * 100);
 		return (
-			<View style={[styles.progressCard, { backgroundColor: darkGreen }] }>
+			<View style={[styles.progressCard, { backgroundColor: darkGreen }]}>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
 					<View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-						<Avatar size={48} name={coop.name} />
+						<Avatar size={48} name={coop.nom} />
 						<View>
-							<ThemedText style={{ color: '#fff', fontWeight: '700' }}>{coop.name}</ThemedText>
-							<ThemedText style={{ color: '#fff', opacity: 0.9 }}>{`Objectif : ${coop.objective.toLocaleString()} FCFA`}</ThemedText>
+							<ThemedText style={{ color: '#fff', fontWeight: '700' }}>{coop.nom}</ThemedText>
+							<ThemedText style={{ color: '#fff', opacity: 0.9 }}>
+								{`Objectif : ${coop.objectif_financier?.toLocaleString()} FCFA`}
+							</ThemedText>
 						</View>
 					</View>
-					{/* <View style={styles.roleBadge}>
-						<ThemedText style={{ color: darkGreen }}>{coop.role}</ThemedText>
-					</View> */}
 				</View>
 
 				<View style={{ marginTop: 12 }}>
-					<ThemedText style={{ color: '#fff', fontSize: 28, fontWeight: '700' }}>{`${coop.collected.toLocaleString()} / ${coop.objective.toLocaleString()} FCFA`}</ThemedText>
+					<ThemedText style={{ color: '#fff', fontSize: 28, fontWeight: '700' }}>
+						{`${coop.montant_actuel?.toLocaleString()} / ${coop.objectif_financier?.toLocaleString()} FCFA`}
+					</ThemedText>
 				</View>
 
 				<View style={styles.progressWrap}>
@@ -92,58 +110,57 @@ export default function AccueilIndex() {
 
 				<View style={styles.progressFooter}>
 					<ThemedText style={{ color: '#fff', opacity: 0.95 }}>{`${percent}% atteint`}</ThemedText>
-					<ThemedText style={{ color: '#fff', opacity: 0.95 }}>{`Objectif en ${coop.deadline}`}</ThemedText>
+					<ThemedText style={{ color: '#fff', opacity: 0.95 }}>Actif</ThemedText>
 				</View>
 			</View>
 		);
 	}
 
+	// ===== RENDER SINGLE =====
 	function renderSingle(coop: any) {
-		const contributions = [
-			{ id: '1', name: 'Marie', date: '20 Mai 2024 - 10:30', amount: '10 000 FCFA' },
-			{ id: '2', name: 'Paul', date: '20 Mai 2024 - 09:15', amount: '5 000 FCFA' },
-			{ id: '3', name: 'Amina', date: '19 Mai 2024 - 18:40', amount: '20 000 FCFA' },
-		];
-
 		return (
 			<>
 				<ProgressCard coop={coop} />
 
-				<View style={[styles.activityCard, { borderColor: border , marginBottom : 12}]}> 
+				<View style={[styles.activityCard, { borderColor: border, marginBottom: 12 }]}>
 					<View style={{ flex: 1 }}>
 						<ThemedText type="defaultSemiBold">Vote en cours</ThemedText>
 						<ThemedText type="text">Vote sur l'achat d'équipements solaires</ThemedText>
 					</View>
-					<TouchableOpacity onPress={() => router.push('../cooperative/vote') }>
+					<TouchableOpacity onPress={() => router.push('../cooperative/vote')}>
 						<ThemedText style={{ color: darkGreen }}>Voir le vote</ThemedText>
 					</TouchableOpacity>
 				</View>
 
-				
-					<View style={styles.rowHeader}>
-						<ThemedText type="defaultSemiBold">Contributions récentes</ThemedText>
-						<TouchableOpacity onPress={() => router.push('/cooperative/historique/1')}>
-							<ThemedText style={{ color: darkGreen }}>Voir tout</ThemedText>
-						</TouchableOpacity>
-					</View>
-                   <View style={{ marginTop: 8 }}>
-					{contributions.map((item) => {
-					return (
-                         <View style={styles.row} key={item.id}>
-							<Avatar name={item.name} size={44} />
-							<View style={{ flex: 1, marginLeft: 12 }}>
-								<ThemedText type="defaultSemiBold">{item.name}</ThemedText>
-								<ThemedText type="text">{item.date}</ThemedText>
+				<View style={styles.rowHeader}>
+					<ThemedText type="defaultSemiBold">Contributions récentes</ThemedText>
+					<TouchableOpacity onPress={() => router.push(`/cooperative/historique/${coop.id}`)}>
+						<ThemedText style={{ color: darkGreen }}>Voir tout</ThemedText>
+					</TouchableOpacity>
+				</View>
+				<View style={{ marginTop: 8 }}>
+					{contributions.length > 0 ? (
+						contributions.slice(0, 3).map((item) => (
+							<View style={styles.row} key={item.id}>
+								<Avatar name={item.user_id} size={44} />
+								<View style={{ flex: 1, marginLeft: 12 }}>
+									<ThemedText type="defaultSemiBold">Cotisation</ThemedText>
+									<ThemedText type="text">
+										{new Date(item.date).toLocaleDateString('fr-FR')}
+									</ThemedText>
+								</View>
+								<ThemedText type="defaultSemiBold">{item.montant?.toLocaleString()} FCFA</ThemedText>
 							</View>
-							<ThemedText type="defaultSemiBold">{item.amount}</ThemedText>
-						</View>
-						)
-					})}
-				   </View>
+						))
+					) : (
+						<ThemedText style={{ textAlign: 'center', opacity: 0.7 }}>Aucune contribution</ThemedText>
+					)}
+				</View>
 			</>
 		);
 	}
 
+	// ===== RENDER MULTIPLE =====
 	function renderMultiple(list: any[]) {
 		return (
 			<>
@@ -153,21 +170,35 @@ export default function AccueilIndex() {
 
 				<View style={{ marginTop: 8, gap: 12 }}>
 					{list.map((c, i) => (
-						<View key={c.id} style={[styles.multiCard, { backgroundColor: i === 0 ? darkGreen : cardBg, borderColor: border }] }>
+						<View key={c.id} style={[styles.multiCard, { backgroundColor: i === 0 ? darkGreen : cardBg, borderColor: border }]}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-								<Avatar size={44} name={c.name} />
+								<Avatar size={44} name={c.nom} />
 								<View style={{ flex: 1 }}>
-									<ThemedText style={i === 0 ? { color: '#fff', fontWeight: '700' } : undefined}>{c.name}</ThemedText>
-									<ThemedText style={i === 0 ? { color: '#fff', opacity: 0.95 } : undefined}>{`Objectif : ${c.objective.toLocaleString()} FCFA`}</ThemedText>
+									<ThemedText style={i === 0 ? { color: '#fff', fontWeight: '700' } : undefined}>{c.nom}</ThemedText>
+									<ThemedText style={i === 0 ? { color: '#fff', opacity: 0.95 } : undefined}>
+										{`Objectif : ${c.objectif_financier?.toLocaleString()} FCFA`}
+									</ThemedText>
 								</View>
-								<TouchableOpacity onPress={() => router.push('/cooperative/dashboard') }>
-									<IconSymbol name={'chevron.right' as any} size={20} color={i === 0 ? '#fff' : darkGreen} />
+								<TouchableOpacity onPress={() => router.push(`/cooperative/dashboard?id=${c.id}`)}>
+									<IconSymbol
+										name={'chevron.right' as any}
+										size={20}
+										color={i === 0 ? '#fff' : darkGreen}
+									/>
 								</TouchableOpacity>
 							</View>
 
 							<View style={{ marginTop: 12 }}>
 								<View style={styles.progressWrap}>
-									<View style={[styles.progressBar, { width: `${Math.round((c.collected/c.objective)*100)}%`, backgroundColor: accent }]} />
+									<View
+										style={[
+											styles.progressBar,
+											{
+												width: `${Math.round((c.montant_actuel / c.objectif_financier) * 100)}%`,
+												backgroundColor: accent,
+											},
+										]}
+									/>
 								</View>
 							</View>
 						</View>
@@ -180,10 +211,10 @@ export default function AccueilIndex() {
 						<View style={styles.row}>
 							<IconSymbol name={'paperplane.fill' as any} size={20} color={darkGreen} />
 							<View style={{ flex: 1, marginLeft: 12 }}>
-								<ThemedText type="defaultSemiBold">Vote en cours - Coopérative Soleil</ThemedText>
+								<ThemedText type="defaultSemiBold">Vote en cours</ThemedText>
 								<ThemedText type="text">Vote sur l'achat d'équipements solaires</ThemedText>
 							</View>
-							<ThemedText>2 jours restants</ThemedText>
+							<ThemedText>En cours</ThemedText>
 						</View>
 					</Card>
 				</View>
@@ -191,11 +222,36 @@ export default function AccueilIndex() {
 		);
 	}
 
+	// ===== LOADING =====
+	if (loading) {
+		return (
+			<ThemedView style={styles.container}>
+				<ScrollView contentContainerStyle={{ padding: 20, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+					<ActivityIndicator size="large" color={darkGreen} />
+					<ThemedText style={{ marginTop: 12 }}>Chargement...</ThemedText>
+				</ScrollView>
+			</ThemedView>
+		);
+	}
+
+	// ===== ERROR =====
+	if (error) {
+		return (
+			<ThemedView style={styles.container}>
+				<ScrollView contentContainerStyle={{ padding: 20, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+					<ThemedText style={{ color: '#FF6B6B', textAlign: 'center' }}>❌ Erreur : {error}</ThemedText>
+					<Button title="Réessayer" onPress={fetchData} style={{ marginTop: 12 }} />
+				</ScrollView>
+			</ThemedView>
+		);
+	}
+
+	// ===== RENDER =====
 	return (
 		<ThemedView style={styles.container}>
-			<ScrollView contentContainerStyle={{ padding: 20 , flex: 1 }} showsVerticalScrollIndicator={false}>
+			<ScrollView contentContainerStyle={{ padding: 20, flex: 1 }} showsVerticalScrollIndicator={false}>
 				<View style={styles.headerRow}>
-					<ThemedText type="title">Bonjour Alliance </ThemedText>
+					<ThemedText type="title">Bonjour Alliance</ThemedText>
 					<TouchableOpacity onPress={() => router.push('/compte/notifications')}>
 						<IconSymbol name={'bell' as any} size={22} color={darkGreen} />
 					</TouchableOpacity>
@@ -204,14 +260,13 @@ export default function AccueilIndex() {
 				{cooperatives.length === 0 && renderEmpty()}
 				{cooperatives.length === 1 && renderSingle(cooperatives[0])}
 				{cooperatives.length > 1 && renderMultiple(cooperatives)}
-
 			</ScrollView>
 		</ThemedView>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: { flex: 1  },
+	container: { flex: 1 },
 	headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4, marginTop: 24 },
 	emptyCard: { paddingVertical: 40, alignItems: 'center' },
 	emptyInner: { alignItems: 'center' },
