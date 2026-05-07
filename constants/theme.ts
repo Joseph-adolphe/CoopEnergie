@@ -13,16 +13,9 @@ const tintColorDark = '#fff';
 // and the new design tokens requested in the design system.
 export const Colors = {
   light: {
-    // classic keys
-    background: '#F7FAF5',
     tint: tintColorLight,
-    icon: '#41493E',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-
-    // design system tokens
     bg: '#F7FAF5',
-    text: '#0000',
+    text: '#1A1A1A',
     darkGreen: '#00450D',
     accentGreen: '#5be074',
     textPrimary: '#00450D',
@@ -33,14 +26,7 @@ export const Colors = {
     border: 'rgba(21,43,25,0.14)',
   },
   dark: {
-    // classic keys (simple dark fallback)
-    background: '#151718',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-
-    // design system tokens (kept same for now)
     bg: '#F7FAF5',
     text: '#0000',
     darkGreen: '#00450D',

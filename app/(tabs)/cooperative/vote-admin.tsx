@@ -61,7 +61,7 @@ export default function VoteAdmin() {
         <PieChart segments={[{ value: yesCount, color: accent, label: 'Oui' }, { value: noCount, color: '#d9534f', label: 'Non' }]} style={{ flex: 1 }} />
       </View>
 
-      <ThemedText type="subtitle">Détail des votes</ThemedText>
+      <ThemedText style={{marginTop: 48}} type="subtitle">Détail des votes</ThemedText>
       <FlatList
         data={VOTES}
         keyExtractor={(i) => i.id}
@@ -85,7 +85,7 @@ export default function VoteAdmin() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: { flex: 1, padding: 20  , paddingTop: 48},
   body: { marginTop: 12 },
   link: { marginTop: 12, color: '#00450D' },
   card: { padding: 12, borderRadius: 10, marginTop: 12 },

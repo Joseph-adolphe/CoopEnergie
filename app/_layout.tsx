@@ -20,7 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
           {/* <ProtectedStack /> */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="fournisseurs" options={{ headerShown: false }} />
+          <Stack.Screen name="(fournisseurs_tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="inscription" options={{ headerShown: false }} />
           <Stack.Screen name="connexion" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />

@@ -55,7 +55,7 @@ export default function Connexion() {
             setStatus({ visible: true, status: 'success', title: 'Connexion fournisseur', message: "Redirection vers l'interface fournisseur..." });
             setTimeout(() => {
               setStatus((s) => (s ? { ...s, visible: false } : s));
-              router.replace('/fournisseurs');
+              router.replace('/fournisseur_dashboard');
             }, 900);
             return;
           }

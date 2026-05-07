@@ -120,7 +120,7 @@ export default function CooperativeDashboard() {
 
       {showMenu ? (
         <View style={styles.menuOverlay} >
-          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cooperative/vote-admin')}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cooperative/vote-admin?admin=true')}>
             <ThemedText>Votes</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cooperative/cotiser')}>

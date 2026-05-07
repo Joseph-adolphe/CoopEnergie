@@ -17,7 +17,7 @@ export default function FournisseursLayout() {
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
-        name="index"
+        name="fournisseur_dashboard"
         options={{
           title: 'Accueil',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
@@ -27,7 +27,7 @@ export default function FournisseursLayout() {
       <Tabs.Screen
         name="produits"
         options={{
-          title: ' Produits',
+          title: 'Produits',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
         }}
       />
