@@ -12,16 +12,19 @@ import { StatusModal } from '@/components/ui/status-modal';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useAuth } from '@/context/AuthContext';
 
+// ===== IMPORT SUPABASE =====
+import { supabase } from '@/config/supabase';
+
 const phoneRegex = /^\+?[0-9]{6,15}$/;
 
 const loginSchema = z.object({
   identifier: z
     .string()
-    .min(1, 'Email ou téléphone requis')
+    .min(1, 'Email ou tÃ©lÃ©phone requis')
     .refine((v) => z.email().safeParse(v).success || phoneRegex.test(v), {
-      message: 'Entrez un email ou un téléphone valide',
+      message: 'Entrez un email ou un tÃ©lÃ©phone valide',
     }),
-  password: z.string().min(6, 'Mot de passe trop court (min 6 caractères)'),
+  password: z.string().min(6, 'Mot de passe trop court (min 6 caractÃ¨res)'),
 });
 
 export default function Connexion() {
@@ -36,47 +39,89 @@ export default function Connexion() {
   });
 
   const { loginAsSupplier } = useAuth();
-
   const primaryColor = useThemeColor({}, 'darkGreen') as string;
 
-  function onSubmit() {
+  // ===== AUTHENTIFICATION AVEC SUPABASE =====
+  async function onSubmit() {
     try {
       loginSchema.parse({ identifier, password });
       setErrors({});
       setLoading(true);
 
-      // simulate authentication and check supplier role
-      setTimeout(async () => {
-        try {
-          const supplierOk = await loginAsSupplier(password);
+      // Cherche l'utilisateur par email ou tÃ©lÃ©phone dans Supabase
+      const { data: users, error: searchError } = await supabase
+        .from('users')
+        .select('*')
+        .or(`email.eq.${identifier},telephone.eq.${identifier}`)
+        .limit(1);
+
+      if (searchError) {
+        throw searchError;
+      }
+
+      if (!users || users.length === 0) {
+        setLoading(false);
+        setStatus({
+          visible: true,
+          status: 'error',
+          title: 'Utilisateur non trouvÃ©',
+          message: 'Cet email ou tÃ©lÃ©phone n\'existe pas. CrÃ©ez un compte.',
+        });
+        return;
+      }
+
+      const user = users[0];
+      console.log('âœ… Utilisateur trouvÃ© :', user);
+
+      // TEMPORAIRE : Validation simple du mot de passe
+      // En production, vous devriez utiliser Supabase Auth ou bcrypt
+      if (password !== 'password123') {
+        setLoading(false);
+        setStatus({
+          visible: true,
+          status: 'error',
+          title: 'Mot de passe incorrect',
+          message: 'Veuillez vÃ©rifier votre mot de passe.',
+        });
+        return;
+      }
+
+      // VÃ©rifie si c'est un fournisseur
+      if (user.role === 'fournisseur') {
+        setStatus({
+          visible: true,
+          status: 'success',
+          title: 'Connexion fournisseur',
+          message: "Redirection vers l'interface fournisseur...",
+        });
+
+        setTimeout(() => {
           setLoading(false);
+          setStatus((s) => (s ? { ...s, visible: false } : s));
+          router.replace('/fournisseur_dashboard');
+        }, 900);
+        return;
+      }
 
-          if (supplierOk) {
-            setStatus({ visible: true, status: 'success', title: 'Connexion fournisseur', message: "Redirection vers l'interface fournisseur..." });
-            setTimeout(() => {
-              setStatus((s) => (s ? { ...s, visible: false } : s));
-              router.replace('/fournisseur_dashboard');
-            }, 900);
-            return;
-          }
+      // Connexion rÃ©ussie pour adhÃ©rent/admin
+      setStatus({
+        visible: true,
+        status: 'success',
+        title: 'Connexion rÃ©ussie',
+        message: `Bienvenue ${user.nom} !`,
+      });
 
-          // fallback: regular user success for password 'password123'
-          if (password === 'password123') {
-            setStatus({ visible: true, status: 'success', title: 'Connexion réussie', message: 'Redirection en cours...' });
-            setTimeout(() => {
-              setStatus((s) => (s ? { ...s, visible: false } : s));
-              router.replace('/accueil');
-            }, 900);
-            return;
-          }
+      // Sauvegarde l'ID utilisateur (Ã  passer Ã  AuthContext)
+      console.log('âœ… Connexion rÃ©ussie pour :', user.nom);
 
-          setStatus({ visible: true, status: 'error', title: 'Identifiants incorrects', message: 'Veuillez réessayer.' });
-        } catch (e) {
-          setLoading(false);
-          setStatus({ visible: true, status: 'error', title: 'Erreur', message: 'Impossible de vérifier le compte fournisseur.' });
-        }
+      setTimeout(() => {
+        setLoading(false);
+        setStatus((s) => (s ? { ...s, visible: false } : s));
+        router.replace('/accueil');
       }, 900);
     } catch (err) {
+      setLoading(false);
+
       if (err instanceof ZodError) {
         const parsed: any = {};
         for (const issue of err.issues) {
@@ -84,34 +129,74 @@ export default function Connexion() {
           if (issue.path?.[0] === 'password') parsed.password = issue.message;
         }
         setErrors(parsed);
+      } else if (err instanceof Error) {
+        setStatus({
+          visible: true,
+          status: 'error',
+          title: 'Erreur de connexion',
+          message: err.message,
+        });
       }
     }
   }
 
   return (
     <ThemedView style={styles.container}>
-       <Image source={require('@/assets/images/logo.jpg')} style={styles.logo} resizeMode="contain" />
+      <Image source={require('@/assets/images/logo.jpg')} style={styles.logo} resizeMode="contain" />
       <ThemedText type="title">Bienvenue !</ThemedText>
-      <ThemedText style={styles.subtitle}>Connectez-vous à votre compte</ThemedText>
+      <ThemedText style={styles.subtitle}>Connectez-vous Ã  votre compte</ThemedText>
 
       <View style={styles.form}>
-        <Input label='Email/Telephone' placeholder="Email ou téléphone" value={identifier} onChangeText={setIdentifier} />
+        <Input
+          label="Email/Telephone"
+          placeholder="Email ou tÃ©lÃ©phone"
+          value={identifier}
+          onChangeText={setIdentifier}
+          editable={!loading}
+        />
         {errors.identifier ? <ThemedText style={styles.error}>{errors.identifier}</ThemedText> : null}
 
-        <Input label='Mot de passe' placeholder="Mot de passe" value={password} onChangeText={setPassword} secureTextEntry />
+        <Input
+          label="Mot de passe"
+          placeholder="Mot de passe"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          editable={!loading}
+        />
         {errors.password ? <ThemedText style={styles.error}>{errors.password}</ThemedText> : null}
 
         <Link href="/connexion/forgot-password" style={styles.forgotLink}>
-          <ThemedText style={styles.forgotText}>Mot de passe oublié ?</ThemedText>
+          <ThemedText style={styles.forgotText}>Mot de passe oubliÃ© ?</ThemedText>
         </Link>
 
-        <Button title="Se connecter" variant="primary" onPress={onSubmit} />
+        <Button
+          title="Se connecter"
+          variant="primary"
+          onPress={onSubmit}
+          disabled={loading}
+        />
 
-        <TouchableOpacity style={[styles.googleBtn, { borderColor: primaryColor }]}> 
+        <TouchableOpacity
+          style={[styles.googleBtn, { borderColor: primaryColor }]}
+          disabled={loading}
+        >
           <ThemedText style={{ textAlign: 'center' }}>Continuer avec Google</ThemedText>
         </TouchableOpacity>
 
-         <Button title="pas de compte ?  incrivez vous" variant="ghost" onPress={() => router.push('/inscription')} />
+        <Button
+          title="Pas de compte ? Inscrivez-vous"
+          variant="ghost"
+          onPress={() => router.push('/inscription')}
+          disabled={loading}
+        />
+
+        {/* Info pour tester */}
+        <View style={{ marginTop: 16, padding: 12, backgroundColor: '#EEF7EF', borderRadius: 8 }}>
+          <ThemedText style={{ fontSize: 12, opacity: 0.7 }}>
+            ðŸ§ª Compte test : sam.admin@test.com / password123
+          </ThemedText>
+        </View>
       </View>
 
       <LoadingModal visible={loading} message="Connexion en cours..." />
@@ -128,7 +213,7 @@ export default function Connexion() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24  , alignContent: 'center' , justifyContent: 'center' },
+  container: { flex: 1, padding: 24, alignContent: 'center', justifyContent: 'center' },
   subtitle: { marginTop: 8, marginBottom: 18 },
   form: { width: '100%', gap: 12 },
   error: { color: '#c82323', marginBottom: 6 },

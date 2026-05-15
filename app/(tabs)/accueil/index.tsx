@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
@@ -10,40 +10,51 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { spacing } from '@/constants/theme';
 
-// Sample data — replace by API data in production
-const MOCK_NONE: any[] = [];
-const MOCK_ONE = [
-	{
-		id: 'c1',
-		name: 'Coopérative Soleil',
-		role: 'Admin',
-		objective: 200000,
-		collected: 75000,
-		deadline: '12 jours',
-	},
-];
-const MOCK_MULTI = [
-	...MOCK_ONE,
-	{
-		id: 'c2',
-		name: 'Énergie Verte',
-		role: 'Membre',
-		objective: 150000,
-		collected: 45000,
-		deadline: '18 jours',
-	},
-];
+// ===== IMPORT SUPABASE =====
+import { getAllCooperatives, getContributions } from '@/services/supabaseService';
 
 export default function AccueilIndex() {
 	const router = useRouter();
-	// Switch data here for preview: MOCK_NONE / MOCK_ONE / MOCK_MULTI
-	const cooperatives = MOCK_ONE;
+	const [cooperatives, setCooperatives] = useState<any[]>([]);
+	const [contributions, setContributions] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
 	const darkGreen = useThemeColor({}, 'darkGreen') as string;
 	const accent = useThemeColor({}, 'accentGreen') as string;
 	const cardBg = useThemeColor({}, 'white') as string;
 	const border = useThemeColor({}, 'border') as string;
 
+	// ===== RÉCUPÉRER LES DONNÉES DEPUIS SUPABASE =====
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	const fetchData = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			// Récupère les coopératives
+			const coopsData = await getAllCooperatives();
+			console.log('✅ Coopératives :', coopsData);
+			setCooperatives(coopsData || []);
+
+			// Si une coopérative existe, récupère ses contributions
+			if (coopsData && coopsData.length > 0) {
+				const contribData = await getContributions(coopsData[0].id);
+				console.log('✅ Contributions :', contribData);
+				setContributions(contribData || []);
+			}
+		} catch (err: any) {
+			console.error('❌ Erreur :', err.message);
+			setError(err.message || 'Erreur lors du chargement');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// ===== RENDER EMPTY =====
 	function renderEmpty() {
 		return (
 			<View style={styles.emptyWrapper}>
@@ -72,8 +83,10 @@ export default function AccueilIndex() {
 		);
 	}
 
+
+	// ===== RENDER SINGLE =====
 	function renderSingle(coop: any) {
-		const percent = Math.round((coop.collected / coop.objective) * 100);
+		const percent = Math.round((coop.montant_actuel / coop.objectif_financier) * 100);
 
 		return (
 			<>
@@ -87,22 +100,23 @@ export default function AccueilIndex() {
 					onPress={() => router.push('/cooperative/dashboard')}
 				>
 					<View style={styles.singleCardHeader}>
-						<Avatar size={48} name={coop.name} />
+						<Avatar size={48} name={coop.nom} />
 						<View style={{ flex: 1, marginLeft: 12 }}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-								<ThemedText style={styles.singleCardName}>{coop.name}</ThemedText>
-								<View style={styles.roleBadge}>
-									<ThemedText style={styles.roleBadgeText}>{coop.role}</ThemedText>
-								</View>
+								<ThemedText style={styles.singleCardName}>{coop.nom}</ThemedText>
+								{ coop?.role && <View style={styles.roleBadge}>
+									<ThemedText style={styles.roleBadgeText}>{coop?.role}</ThemedText>
+								   </View>
+								}
 							</View>
-							<ThemedText style={styles.singleCardObjectif}>{`Objectif : ${coop.objective.toLocaleString()} FCFA`}</ThemedText>
+							<ThemedText style={styles.singleCardObjectif}>{`Objectif : ${coop.objectif_financier?.toLocaleString()} FCFA`}</ThemedText>
 						</View>
 						<IconSymbol name={'chevron.right' as any} size={20} color="#fff" />
 					</View>
 
 					<ThemedText style={styles.singleCardAmount}>
-						{`${coop.collected.toLocaleString()} `}
-						<ThemedText style={styles.singleCardAmountSub}>{`/ ${coop.objective.toLocaleString()} FCFA`}</ThemedText>
+						{`${coop.montant_actuel?.toLocaleString()} `}
+						<ThemedText style={styles.singleCardAmountSub}>{`/ ${coop.objectif_financier?.toLocaleString()} FCFA`}</ThemedText>
 					</ThemedText>
 
 					<View style={styles.progressWrap}>
@@ -111,7 +125,7 @@ export default function AccueilIndex() {
 
 					<View style={styles.progressFooter}>
 						<ThemedText style={styles.progressFooterText}>{`${percent}% atteint`}</ThemedText>
-						<ThemedText style={styles.progressFooterText}>{`Objectif en ${coop.deadline}`}</ThemedText>
+						<ThemedText style={styles.progressFooterText}>{coop?.deadline ?`Objectif en ${coop?.deadline}` : `Actif`}</ThemedText>
 					</View>
 				</TouchableOpacity>
 
@@ -146,12 +160,24 @@ export default function AccueilIndex() {
 						<IconSymbol name={'arrow.up.circle.fill' as any} size={20} color={darkGreen} />
 					</View>
 					<View style={{ flex: 1, marginLeft: 12 }}>
-						<View >
-							<ThemedText type="defaultSemiBold">Dernière contribution</ThemedText>
-							<ThemedText type="defaultSemiBold">10 000 FCFA</ThemedText>
-						</View>
-						<ThemedText style={styles.activitySubtext}>20 Mai 2024 - 10:30</ThemedText>
-						<TouchableOpacity onPress={() => router.push('/cooperative/historique/1')} style={{ marginTop: 6 }}>
+                        {contributions.length > 0 ? (
+						contributions.slice(0, 3).map((item) => (
+							<View style={styles.row} key={item.id}>
+								<Avatar name={item.user_id} size={44} />
+								<View style={{ flex: 1, marginLeft: 12 }}>
+									<ThemedText type="defaultSemiBold">Cotisation</ThemedText>
+									<ThemedText type="text">
+										{new Date(item.date).toLocaleDateString('fr-FR')}
+									</ThemedText>
+								</View>
+								<ThemedText type="defaultSemiBold">{item.montant?.toLocaleString()} FCFA</ThemedText>
+							</View>
+						))
+					) : (
+						<ThemedText style={{ textAlign: 'center', opacity: 0.7 }}>Aucune contribution</ThemedText>
+					)}
+
+						<TouchableOpacity onPress={() => router.push(`/cooperative/historique/${coop.id}`)} style={{ marginTop: 6 }}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
 								<ThemedText style={[styles.linkText, { color: darkGreen }]}>Voir l'historique</ThemedText>
 								<IconSymbol name={'chevron.right' as any} size={14} color={darkGreen} />
@@ -163,6 +189,7 @@ export default function AccueilIndex() {
 		);
 	}
 
+	// ===== RENDER MULTIPLE =====
 	function renderMultiple(list: any[]) {
 		const CARD_COLORS = darkGreen
 
@@ -177,26 +204,27 @@ export default function AccueilIndex() {
 				</View>
 
 				<View style={{ gap: 12, marginTop: 8 }}>
-					{list.map((c, i) => {
-						const percent = Math.round((c.collected / c.objective) * 100);
+					{list.map((c) => {
+						const percent = Math.round((c.montant_actuel / c.objectif_financier) * 100);
 						const bg = CARD_COLORS ;
 						return (
 							<TouchableOpacity
 								key={c.id}
 								activeOpacity={0.92}
 								style={[styles.multiCard, { backgroundColor: bg }]}
-								onPress={() => router.push('/cooperative/dashboard')}
+								onPress={() => router.push(`/cooperative/dashboard?id=${c.id}`)}
 							>
 								<View style={styles.singleCardHeader}>
-									<Avatar size={48} name={c.name} />
+									<Avatar size={48} name={c.nom} />
 									<View style={{ flex: 1, marginLeft: 12 }}>
 										<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-											<ThemedText style={styles.singleCardName}>{c.name}</ThemedText>
-											<View style={styles.roleBadge}>
+											<ThemedText style={styles.singleCardName}>{c.nom}</ThemedText>
+										  {	c?.role && <View style={styles.roleBadge}>
 												<ThemedText style={styles.roleBadgeText}>{c.role}</ThemedText>
 											</View>
+					                       }
 										</View>
-										<ThemedText style={styles.singleCardObjectif}>{`Objectif : ${c.objective.toLocaleString()} FCFA`}</ThemedText>
+										<ThemedText style={styles.singleCardObjectif}>{`Objectif : ${c.objectif_financier?.toLocaleString()} FCFA`}</ThemedText>
 									</View>
 									<IconSymbol name={'chevron.right' as any} size={20} color="#fff" />
 								</View>
@@ -207,12 +235,21 @@ export default function AccueilIndex() {
 								</ThemedText>
 
 								<View style={styles.progressWrap}>
-									<View style={[styles.progressBar, { width: `${percent}%`, backgroundColor: accent }]} />
+									<View
+										style={[
+											styles.progressBar,
+											{
+												width: `${percent}%`,
+												backgroundColor: accent,
+											},
+										]}
+									/>
 								</View>
 
 								<View style={styles.progressFooter}>
 									<ThemedText style={styles.progressFooterText}>{`${percent}% atteint`}</ThemedText>
-									<ThemedText style={styles.progressFooterText}>{`Objectif en ${c.deadline}`}</ThemedText>
+								  {	c?.deadline && <ThemedText style={styles.progressFooterText}>{`Objectif en ${c?.deadline}`}</ThemedText>
+					              }
 								</View>
 							</TouchableOpacity>
 						);
@@ -261,11 +298,36 @@ export default function AccueilIndex() {
 		);
 	}
 
+	// ===== LOADING =====
+	if (loading) {
+		return (
+			<ThemedView style={styles.container}>
+				<ScrollView contentContainerStyle={{ padding: 20, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+					<ActivityIndicator size="large" color={darkGreen} />
+					<ThemedText style={{ marginTop: 12 }}>Chargement...</ThemedText>
+				</ScrollView>
+			</ThemedView>
+		);
+	}
+
+	// ===== ERROR =====
+	if (error) {
+		return (
+			<ThemedView style={styles.container}>
+				<ScrollView contentContainerStyle={{ padding: 20, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+					<ThemedText style={{ color: '#FF6B6B', textAlign: 'center' }}>❌ Erreur : {error}</ThemedText>
+					<Button title="Réessayer" onPress={fetchData} style={{ marginTop: 12 }} />
+				</ScrollView>
+			</ThemedView>
+		);
+	}
+
+	// ===== RENDER =====
 	return (
 		<ThemedView style={styles.container}>
 			<ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 				<View style={styles.headerRow}>
-					<ThemedText type="title">Bonjour Alliance </ThemedText>
+					<ThemedText type="title">Bonjour Alliance</ThemedText>
 					<TouchableOpacity onPress={() => router.push('/compte/notifications')}>
 						<IconSymbol name={'bell'} size={22} color={darkGreen} />
 					</TouchableOpacity>
@@ -454,4 +516,6 @@ const styles = StyleSheet.create({
 		padding: 18,
 		borderRadius: 16,
 	},
+
+	row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
 });

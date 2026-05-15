@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
@@ -8,16 +8,22 @@ import { StatusModal } from '@/components/ui/status-modal';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { supabase } from '@/config/supabase';
 
 
-type VoteChoice = 'yes' | 'no';
+type VoteChoice = 'oui' | 'non' | 'abstention';
 const PLACEHOLDER = require('@/assets/images/placeholder.png');
 
 
 export default function Vote() {
  const imageUri = '';
-
-  const [loading, setLoading] = useState(false);
+ const darkGreen = useThemeColor({}, 'darkGreen') as string;
+  const [proposal, setProposal] = useState<any>(null);
+  const [votes, setVotes] = useState<any[]>([]);
+  const [userVoted, setUserVoted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [voting, setVoting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<{
     visible: boolean;
     status: 'success' | 'error';
@@ -28,17 +34,149 @@ export default function Vote() {
   const router = useRouter();
   const accentGreen = '#1A8C3E';
 
-  function cast(choice: VoteChoice) {
-    setLoading(true);
-    setTimeout(() => {
+  useEffect(() => {
+    fetchProposalAndVotes();
+  }, []);
+
+  const fetchProposalAndVotes = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Récupère les propositions en attente
+      const { data: proposals, error: proposalError } = await supabase
+        .from('proposals')
+        .select('*')
+        .eq('status', 'en_attente')
+        .limit(1)
+        .single();
+
+      if (proposalError && proposalError.code !== 'PGRST116') {
+        throw proposalError;
+      }
+
+      if (!proposals) {
+        setProposal(null);
+        setVotes([]);
+        setLoading(false);
+        return;
+      }
+
+      console.log('✅ Proposition récupérée :', proposals);
+      setProposal(proposals);
+
+      // Récupère les votes pour cette proposition
+      const { data: votesData, error: votesError } = await supabase
+        .from('votes')
+        .select('*')
+        .eq('proposal_id', proposals.id);
+
+      if (votesError) {
+        throw votesError;
+      }
+
+      console.log('✅ Votes récupérés :', votesData);
+      setVotes(votesData || []);
+
+      // Vérifie si l'utilisateur a déjà voté (TEMPORAIRE : utilise un ID test)
+      const userId = 'b3c965b9-7df6-45c2-92c3-809c6c8c3741';
+      const userVote = votesData?.some((v: any) => v.user_id === userId);
+      setUserVoted(!!userVote);
+    } catch (err: any) {
+      console.error('❌ Erreur :', err.message);
+      setError(err.message || 'Erreur lors du chargement');
+    } finally {
       setLoading(false);
+    }
+  };
+
+    const countVotes = () => {
+    const yesCount = votes.filter((v: any) => v.choix === 'oui').length;
+    const noCount = votes.filter((v: any) => v.choix === 'non').length;
+    const abstainCount = votes.filter((v: any) => v.choix === 'abstention').length;
+    return { yesCount, noCount, abstainCount };
+  };
+
+    const { yesCount, noCount, abstainCount } = countVotes();
+
+
+  const cast = async (choice: VoteChoice) => {
+    try {
+      setVoting(true);
+
+      // TEMPORAIRE : ID utilisateur test
+      const userId = 'b3c965b9-7df6-45c2-92c3-809c6c8c3741';
+
+      // Enregistre le vote dans Supabase
+      const { data, error } = await supabase
+        .from('votes')
+        .insert([
+          {
+            proposal_id: proposal.id,
+            user_id: userId,
+            choix: choice,
+          },
+        ])
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      console.log('✅ Vote enregistré :', data);
+
+      setVoting(false);
+      setUserVoted(true);
       setStatus({
         visible: true,
         status: 'success',
-        title: 'Merci !',
-        message: `Votre vote "${choice === 'yes' ? 'Oui' : 'Non'}" a été pris en compte.`,
+        title: 'Merci',
+        message: `Votre vote (${
+          choice === 'oui' ? 'Oui' : choice === 'non' ? 'Non' : 'Abstention'
+        }) a été pris en compte.`,
       });
-    }, 900);
+
+      // Recharge les votes
+      setTimeout(() => {
+        fetchProposalAndVotes();
+        setTimeout(() => {
+          router.replace(`/vote-details?yes=${yesCount}&no=${noCount}&abstain=${abstainCount}`);
+        }, 1000);
+      }, 1000);
+    } catch (err: any) {
+      console.error('❌ Erreur vote :', err.message);
+      setVoting(false);
+      setStatus({
+        visible: true,
+        status: 'error',
+        title: 'Erreur',
+        message: err.message || 'Erreur lors du vote',
+      });
+    }
+  };
+
+ if (loading) {
+    return (
+      <ThemedView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={darkGreen} />
+        <ThemedText style={{ marginTop: 12 }}>Chargement de la proposition...</ThemedText>
+      </ThemedView>
+    );
+  }
+
+    if (!proposal) {
+    return (
+      <ThemedView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ThemedText style={{ textAlign: 'center', opacity: 0.7, marginBottom: 12 }}>
+          Aucune proposition en attente de vote
+        </ThemedText>
+        <Button
+          title="Retour au dashboard"
+          variant="primary"
+          onPress={() => router.replace('/cooperative/dashboard')}
+        />
+      </ThemedView>
+    );
   }
 
   return (
@@ -54,8 +192,13 @@ export default function Vote() {
             <ThemedText style={styles.badgeText}>Vote en cours · 6 jours restants</ThemedText>
           </View>
           <ThemedText style={styles.title}>
-            Achat d'un kit solaire résidentiel 3kW
+           {proposal.description}
           </ThemedText>
+                {userVoted && (
+        <View style={{ marginTop: 12, padding: 12, backgroundColor: '#EEF7EF', borderRadius: 8 }}>
+          <ThemedText style={{ color: accentGreen }}> Vous avez déjà voté</ThemedText>
+        </View>
+              )}
           <ThemedText style={styles.subtitle}>
             Proposé par Marie Claire (Admin) · 20 Mai 2024
           </ThemedText>
@@ -92,7 +235,9 @@ export default function Vote() {
           <VoteDetail label="Organisé par" value="Coopérative Soleil" last />
         </View>
 
-        {/* ── Actions ── */}
+
+{ !userVoted && (
+        <>
         <ThemedText style={styles.votePrompt}>
           Lisez attentivement la proposition et répondez.
         </ThemedText>
@@ -100,8 +245,9 @@ export default function Vote() {
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.voteBtn, styles.voteBtnYes]}
-            onPress={() => cast('yes')}
+            onPress={() => cast('oui')}
             activeOpacity={0.85}
+            disabled={voting}
           >
             <IconSymbol name="checkmark.circle.fill" size={22} color="#fff" />
             <ThemedText style={styles.voteBtnText}>Oui</ThemedText>
@@ -110,29 +256,35 @@ export default function Vote() {
 
           <TouchableOpacity
             style={[styles.voteBtn, styles.voteBtnNo]}
-            onPress={() => cast('no')}
+            onPress={() => cast('non')}
             activeOpacity={0.85}
+            disabled={voting}
           >
             <IconSymbol name="xmark" size={22} color="#fff" />
             <ThemedText style={styles.voteBtnText}>Non</ThemedText>
             <ThemedText style={styles.voteBtnSub}>Je ne suis pas d'accord</ThemedText>
           </TouchableOpacity>
         </View>
+        </>
+)}
       </ScrollView>
 
-      <LoadingModal visible={loading} />
-      {status && (
+      {error && (
+        <View style={{ marginTop: 12, padding: 12, backgroundColor: '#FFE8E8', borderRadius: 8 }}>
+          <ThemedText style={{ color: '#FF6B6B' }}> {error}</ThemedText>
+        </View>
+      )}
+
+      <LoadingModal visible={voting} message="Enregistrement du vote..." />
+      {status ? (
         <StatusModal
           visible={status.visible}
           status={status.status}
           title={status.title}
           message={status.message}
-          onClose={() => {
-            setStatus(null);
-            router.replace('/vote-details');
-          }}
+          onClose={() => setStatus(null)}
         />
-      )}
+      ) : null}
     </ThemedView>
   );
 }

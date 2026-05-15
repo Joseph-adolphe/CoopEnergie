@@ -16,11 +16,9 @@ import { LoadingModal } from '@/components/ui/loading-modal';
 import { StatusModal } from '@/components/ui/status-modal';
 import { Ionicons } from '@expo/vector-icons';
 
-// ── Constantes ─────────────────────────────────────────────────────────────
-const ACCENT   = '#00450D';
-const DURATION_OPTIONS = ['3 mois', '6 mois', '12 mois', '24 mois'];
+// ===== IMPORT SUPABASE =====
+import { createUser, createCooperative } from '@/services/supabaseService';
 
-// ── Validation ─────────────────────────────────────────────────────────────
 const schema = z.object({
   name: z.string().min(2, 'Entrez un nom valide (min. 2 caractères).'),
   description: z.string().max(250).optional(),
@@ -31,9 +29,11 @@ const schema = z.object({
   duration: z.string().min(1, "Veuillez choisir une durée."),
 });
 
-// ── Page ──────────────────────────────────────────────────────────────────
+
 export default function CreationStep1() {
   const router = useRouter();
+  const ACCENT = '#1A8C3E';
+  const DURATION_OPTIONS = ['3 mois', '6 mois', '12 mois'];
 
   const [name,        setName]        = useState('');
   const [description, setDescription] = useState('');
@@ -49,19 +49,73 @@ export default function CreationStep1() {
     message?: string;
   } | null>(null);
 
-  function handleNext() {
+  // ===== CRÉER LA COOPÉRATIVE DANS SUPABASE =====
+  async function handleNext() {
     try {
+      // Valide les données
       schema.parse({ name, description, objectif, duration });
       setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        const qs = `?name=${encodeURIComponent(name)}&objectif=${encodeURIComponent(objectif)}&duration=${encodeURIComponent(duration)}&description=${encodeURIComponent(description)}`;
-        router.push(`../creation/02_invitation${qs}` as any);
-      }, 700);
-    } catch (err) {
-      if (err instanceof ZodError) {
-        setStatus({ visible: true, status: 'error', title: 'Champ invalide', message: err.issues[0]?.message });
+
+      // ===== CRÉER L'UTILISATEUR ADMIN (TEMPORAIRE) =====
+      // En production, ce serait l'utilisateur connecté
+      const adminData = await createUser(
+        'Admin Coopérative',
+        `admin-${Date.now()}@coop.local`,
+        '+237 6XX XXX XXX',
+        'admin'
+      );
+
+      const adminId = adminData[0]?.id;
+
+      if (!adminId) {
+        throw new Error('Erreur lors de la création de l\'utilisateur');
       }
+
+      console.log('✅ Utilisateur admin créé :', adminId);
+
+      // ===== CRÉER LA COOPÉRATIVE =====
+      const coopData = await createCooperative(name, parseInt(objectif), adminId);
+
+      const cooperativeId = coopData[0]?.id;
+
+      if (!cooperativeId) {
+        throw new Error('Erreur lors de la création de la coopérative');
+      }
+
+      console.log('✅ Coopérative créée :', cooperativeId);
+
+      setStatus({
+        visible: true,
+        status: 'success',
+        title: 'Succès !',
+        message: 'Coopérative créée avec succès',
+      });
+
+      // Attends 1 seconde puis va à l'étape suivante
+      setTimeout(() => {
+        const qs = `?coopId=${cooperativeId}&name=${encodeURIComponent(name)}&objectif=${encodeURIComponent(
+          objectif
+        )}&duration=${encodeURIComponent(duration)}&description=${encodeURIComponent(description)}`;
+        router.push(`../creation/02_invitation${qs}`);
+      }, 1000);
+    } catch (err) {
+      console.error('❌ Erreur :', err);
+
+      let errorMessage = 'Une erreur est survenue';
+
+      if (err instanceof ZodError) {
+        errorMessage = err.issues[0]?.message || 'Données invalides';
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      setLoading(false);
+      setStatus({
+        visible: true,
+        status: 'error',
+        title: 'Erreur',
+        message: errorMessage,
+      });
     }
   }
 
@@ -92,6 +146,7 @@ export default function CreationStep1() {
           value={name}
           onChangeText={setName}
           returnKeyType="next"
+          editable={!loading}
         />
 
         {/* ── Description ── */}
@@ -105,6 +160,7 @@ export default function CreationStep1() {
             onChangeText={(t) => t.length <= 250 && setDescription(t)}
             multiline
             textAlignVertical="top"
+            editable={!loading}
           />
           <ThemedText style={styles.charCount}>{description.length} / 250</ThemedText>
         </View>
@@ -125,6 +181,7 @@ export default function CreationStep1() {
             onChangeText={setObjectif}
             keyboardType="numeric"
             returnKeyType="done"
+            editable={!loading}
           />
           <View style={styles.suffixBox}>
             <ThemedText style={styles.suffixText}>FCFA</ThemedText>
@@ -183,12 +240,12 @@ export default function CreationStep1() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.nextBtn} onPress={handleNext} activeOpacity={0.88}>
+        <TouchableOpacity style={styles.nextBtn} onPress={handleNext} activeOpacity={0.88} disabled={loading}>
           <ThemedText style={styles.nextBtnText}>Suivant</ThemedText>
         </TouchableOpacity>
       </View>
 
-      <LoadingModal visible={loading} message="Validation..." />
+       <LoadingModal visible={loading} message="Création de la coopérative..." />
       {status && (
         <StatusModal
           visible={status.visible}
@@ -329,7 +386,7 @@ const styles = StyleSheet.create({
   dropdownItemBorder:     { borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
   dropdownItemActive:     { backgroundColor: '#F0FBF4' },
   dropdownItemText:       { fontSize: 14, color: '#374151' },
-  dropdownItemTextActive: { color: ACCENT, fontWeight: '600' },
+  dropdownItemTextActive: { color: '#1A8C3E', fontWeight: '600' },
 
   // Conseil
   tipCard: {
@@ -367,12 +424,12 @@ const styles = StyleSheet.create({
     borderTopColor: '#F0F0F0',
   },
   nextBtn: {
-    backgroundColor: ACCENT,
+    backgroundColor: '#1A8C3E',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
     ...Platform.select({
-      ios:     { shadowColor: ACCENT, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10 },
+      ios:     { shadowColor: '#1A8C3E', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10 },
       android: { elevation: 5 },
     }),
   },
