@@ -1,4 +1,4 @@
-ximport React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PieChart } from '@/components/ui/chart-pie';
 import { LoadingModal } from '@/components/ui/loading-modal';
 import { StatusModal } from '@/components/ui/status-modal';
-ixmport { useThemeColor } from '@/hooks/use-theme-color';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { useRouter } from 'expo-router';
 
 // ===== IMPORT SUPABASE =====
