@@ -31,7 +31,26 @@ const MAPPING = {
   'checkmark.circle.fill': 'check-circle',
   'box.truck' : 'local-shipping',
   'square.and.pencil' : 'edit',
-  'trash' : 'delete'
+  'trash' : 'delete',
+  'arrow.up.circle.fill': 'arrow-circle-up',
+  'envelope.fill': 'email',
+   'chart.line.uptrend.xyaxis': 'trending-up',
+   'checkmark.square' : 'how-to-vote',
+   'person.2.fill': 'group',
+   'list.bullet.clipboard' : 'event-note',
+   'hand.raised.circle' : 'volunteer-activism',
+   'doc.text.below.ecg' : 'analytics',
+   'plus.circle' : 'add-circle-outline',
+   'clock.arrow.circlepath': 'history',
+   'chevron.up': 'expand-less',
+   'chevron.down': 'expand-more',
+   'xmark': 'close',
+   'calendar': 'calendar-today',
+   'plus': 'add',
+    'minus': 'remove',
+    'arrow.down.to.line': 'downloading',
+    'info.circle': 'info',
+    'clock': 'schedule',
 } as IconMapping;
 
 /**

@@ -60,6 +60,6 @@ export default function ForgotPassword() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 , paddingTop: 48 },
+  container: { flex: 1, padding: 24  },
   body: { marginTop: 12 },
 });

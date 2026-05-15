@@ -24,7 +24,7 @@ export default function Onboarding01() {
           </View>
 
           <View style={styles.actions}>
-            <Button title="commencer maintenant" variant="primary" size="lg" onPress={() => router.push('/onboarding/02_create_cooperative')} style={styles.primary} />
+            <Button title="commencer maintenant" variant="primary" size="lg" onPress={() => router.push('/02_create_cooperative')} style={styles.primary} />
             <Button title="rejoindre une Cooperative" variant="ghost" size="lg" onPress={() => router.push('/connexion')} style={[styles.secondary, { borderColor: primary, borderWidth: 2 }]} />
           </View>
       </View>

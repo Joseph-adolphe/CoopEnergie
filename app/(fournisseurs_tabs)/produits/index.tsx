@@ -51,7 +51,7 @@ export default function Produits() {
     <ThemedView style={styles.container}>
       <View style={styles.header}>
         <ThemedText type="title">Mes produits</ThemedText>
-        <Button title="+ Ajouter un produit" variant="primary" size="sm" onPress={handleAddProduct} />
+        <Button  title="+ Ajouter" variant="primary" size="sm" onPress={handleAddProduct} />
       </View>
 
       <SearchBar placeholder="Rechercher un produit..." value={search} onChangeText={setSearch} showFilter={true} />
@@ -62,7 +62,6 @@ export default function Produits() {
         data={filtered}
         keyExtractor={(p) => p.id}
         contentContainerStyle={styles.listContent}
-        scrollEnabled={false}
         renderItem={({ item }) => (
           <ProductCard
             name={item.name}
@@ -81,7 +80,7 @@ export default function Produits() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 48 },
+  container: { flex: 1},
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -17,7 +17,7 @@ const { width } = Dimensions.get('window');
 const STATS = [
   {
     id: 's1',
-    icon: 'trending-up' as const,
+    icon: 'arrow.up.circle.fill' as const,
     iconBg: '#1A8C3E',
     label: 'Contributions',
     value: '1 245 000 FCFA',
@@ -26,7 +26,7 @@ const STATS = [
   },
   {
     id: 's2',
-    icon: 'how-to-vote' as const,
+    icon: 'checkmark.square' as const,
     iconBg: '#F5A623',
     label: 'Votes organisés',
     value: '12',
@@ -35,7 +35,7 @@ const STATS = [
   },
   {
     id: 's3',
-    icon: 'group' as const,
+    icon: 'person.2.fill' as const,
     iconBg: '#4A90E2',
     label: 'Membres actifs',
     value: '156',
@@ -44,7 +44,7 @@ const STATS = [
   },
   {
     id: 's4',
-    icon: 'event-note' as const,
+    icon: 'list.bullet.clipboard' as const,
     iconBg: '#8B5CF6',
     label: 'Activités totales',
     value: '60',
@@ -53,7 +53,7 @@ const STATS = [
   },
 ];
 
-// ─── Activity data ─────────────────────────────────────────────────────────────
+
 type ActivityType = 'contribution' | 'vote' | 'member' | 'vote-done';
 
 interface Activity {
@@ -134,7 +134,7 @@ const ACTIVITIES: Activity[] = [
   },
 ];
 
-// ─── Activity icon ─────────────────────────────────────────────────────────────
+
 function ActivityIcon({ type }: { type: ActivityType }) {
   const config = {
     contribution: { icon: 'arrow-upward', bg: '#1A8C3E' },
@@ -190,15 +190,16 @@ export default function CooperativeHistory() {
         </TouchableOpacity>
       </View>
 
+       {/* Tab buttons */}
+      <TabButtons tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      
+
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Tab buttons */}
-        <TabButtons tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
-
-        {/* Summary */}
+                 {/* Summary */}
         <ThemedText style={styles.sectionTitle}>Résumé</ThemedText>
         <ScrollView
           horizontal
@@ -208,9 +209,12 @@ export default function CooperativeHistory() {
           {STATS.map((s) => (
             <View key={s.id} style={styles.statCard}>
               <View style={[styles.statIconCircle, { backgroundColor: s.iconBg }]}>
-                <MaterialIcons name={s.icon} size={20} color="#fff" />
+               <IconSymbol name={s.icon } size={20} color="#fff" />
               </View>
-              <ThemedText style={styles.statLabel}>{s.label}</ThemedText>
+              <View style={{flexDirection:'row' ,  justifyContent: 'space-between' , alignItems: 'center'}}>
+               <ThemedText style={styles.statLabel}>{s.label}</ThemedText>
+               <IconSymbol name="chevron.right" size={18} color="#C0C0C0"/>
+              </View>
               <ThemedText style={[styles.statValue, { color: s.valueColor }]}>
                 {s.value}
               </ThemedText>
@@ -241,6 +245,7 @@ export default function CooperativeHistory() {
               <ActivityIcon type={item.type} />
 
               <View style={styles.actBody}>
+                 <View style={styles.actBody}>
                 <ThemedText style={styles.actTitle}>{item.title}</ThemedText>
                 <ThemedText style={styles.actSub}>{item.sub}</ThemedText>
                 <ThemedText style={styles.actDate}>{item.date}</ThemedText>
@@ -257,7 +262,7 @@ export default function CooperativeHistory() {
                 </View>
               </View>
 
-              <MaterialIcons name="chevron-right" size={18} color="#C0C0C0" />
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -272,18 +277,16 @@ export default function CooperativeHistory() {
   );
 }
 
-// ─── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#fff',
+    paddingHorizontal: 12
   },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   pageTitle: {
@@ -322,10 +325,11 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     gap: 12,
-    paddingRight: 20,
+    height: 210,
   },
   statCard: {
     width: (width - 64) / 2,
+    height: 200,
     backgroundColor: '#FAFAFA',
     borderRadius: 14,
     padding: 14,
@@ -416,7 +420,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   actRight: {
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     gap: 4,
   },
   actAmount: {

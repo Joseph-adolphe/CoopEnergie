@@ -6,28 +6,27 @@ import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 
-export default function Onboarding04() {
+export default function Onboarding05() {
   const router = useRouter();
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={{ flex: 0 }} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Image source={require('@/assets/images/onboarding/onboarding-04.png')} style={styles.image} resizeMode="contain" />
+        <Image source={require('@/assets/images/onboarding/onboarding-05.png')} style={styles.image} resizeMode="contain" />
 
-        <ThemedText type="title">Voter en transparence</ThemedText>
-        <ThemedText style={styles.body}>Chaque achat est soumis au vote. Une personne, une voix.</ThemedText>
-         <View style={{flex : 1 , height: 220}}/>
+        <ThemedText type="title">Atteindre les objectifs</ThemedText>
+        <ThemedText style={styles.body}>Lorsque l'objectif est atteint, nous achetons et installons le matériel.</ThemedText>
+          <View style={{flex : 1 , height: 220}}/>
         <View style={styles.actions}>
-          <Button title="Suivant" variant="primary" onPress={() => router.push('/onboarding/05_objectifs')} />
+          <Button title="Suivant" variant="primary" onPress={() => router.push('/06_bienvenue')} />
         </View>
 
         <View style={styles.dotsRow}>
           <View style={styles.dot} />
           <View style={styles.dot} />
           <View style={styles.dot} />
-          <View style={[styles.dot, styles.dotActive]} />
           <View style={styles.dot} />
+          <View style={[styles.dot, styles.dotActive]} />
           <View style={styles.dot} />
         </View>
       </ScrollView>

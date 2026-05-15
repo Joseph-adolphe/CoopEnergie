@@ -18,9 +18,6 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 const { width } = Dimensions.get('window');
-const primaryColor = useThemeColor({}, 'darkGreen') as string;
-const textColor = useThemeColor({}, 'text') as string;
-
 
 type OrderStatus = 'En attente' | 'Validée' | 'Expédiée' | 'Livrée';
 
@@ -36,7 +33,7 @@ interface Order {
 
 const STATUS_STYLE = {
   'En attente': { label: 'En attente', color: '#D97706', bg: '#FEF3E2' },
-  'Validée': { label: 'Validée', color: primaryColor , bg: '#E8F5EC' },
+  'Validée': { label: 'Validée', color: '#00450D' , bg: '#E8F5EC' },
   'Expédiée': { label: 'Expédiée', color: '#4A90E2', bg: '#EBF3FD' },
   'Livrée': { label: 'Livrée', color: '#6B7280', bg: '#F3F4F6' },
 };
@@ -96,6 +93,61 @@ const TAB_STATUS_MAP: Record<string, OrderStatus | null> = {
   delivered: 'Livrée',
 };
 
+export default function Commandes() {
+  const [activeTab, setActiveTab] = useState('all');
+  const [search, setSearch] = useState('');
+
+
+  const statusFilter = TAB_STATUS_MAP[activeTab];
+  const filtered = ALL_ORDERS.filter((o) => {
+    const matchesTab = statusFilter === null || o.status === statusFilter;
+    const matchesSearch =
+      o.id.toLowerCase().includes(search.toLowerCase()) ||
+      o.name.toLowerCase().includes(search.toLowerCase()) ||
+      o.product.toLowerCase().includes(search.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  return (
+    <ThemedView style={styles.root}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn}>
+          <IconSymbol size={22} name="chevron.left" color="#1A1A1A" />
+        </TouchableOpacity>
+        <ThemedText type='title'>Commandes</ThemedText>
+      </View>
+
+      {/* Search + Filtrer */}
+      <SearchBar placeholder="Rechercher une commande..." value={search} onChangeText={setSearch} showFilter={true} />
+
+      {/* Tabs underline variant */}
+      <TabButtons
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        variant="underline"
+      />
+
+      {/* Orders list */}
+      <FlatList
+        data={filtered}
+        keyExtractor={(o) => o.id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => <OrderCard item={item} />}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <MaterialIcons name="inbox" size={40} color="#D1D5DB" />
+            <ThemedText style={styles.emptyText}>Aucune commande trouvée</ThemedText>
+          </View>
+        }
+      />
+    </ThemedView>
+  );
+}
+
+
 
 function ActionButton({ status }: { status: OrderStatus }) {
   const config = {
@@ -124,7 +176,7 @@ function ActionButton({ status }: { status: OrderStatus }) {
 
   return (
     <TouchableOpacity style={[cardStyles.actionBtn, config.style]} activeOpacity={0.8}>
-      <IconSymbol name={config.icon} size={14} color={status === 'En attente' ? '#fff' : primaryColor} />
+      <IconSymbol name={config.icon} size={14} color={status === 'En attente' ? '#fff' : '#00450D'} />
       <ThemedText style={config.textStyle}>{config.label}</ThemedText>
     </TouchableOpacity>
   );
@@ -192,7 +244,7 @@ const cardStyles = StyleSheet.create({
     marginBottom: 6,
   },
   idBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  orderId: { fontSize: 14, fontWeight: '700', color: textColor },
+  orderId: { fontSize: 14, fontWeight: '700', color: '#1A1A1A' },
   badge: {
     borderRadius: 6,
     paddingHorizontal: 8,
@@ -201,7 +253,7 @@ const cardStyles = StyleSheet.create({
   badgeText: { fontSize: 11, fontWeight: '600' },
   date: { fontSize: 11, color: '#9CA3AF' },
   customerName: { fontSize: 12, color: '#6B7280', marginBottom: 2 },
-  productName: { fontSize: 14, fontWeight: '700', color: textColor },
+  productName: { fontSize: 14, fontWeight: '700', color: '#1A1A1A' },
   amountRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -209,7 +261,7 @@ const cardStyles = StyleSheet.create({
     marginTop: 4,
   },
   baseAmount: { fontSize: 12, color: '#9CA3AF' },
-  amount: { fontSize: 15, fontWeight: '800', color: primaryColor },
+  amount: { fontSize: 15, fontWeight: '800', color: '#00450D' },
   divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 10 },
   actionsRow: {
     flexDirection: 'row',
@@ -238,69 +290,17 @@ const cardStyles = StyleSheet.create({
     paddingVertical: 9,
     borderRadius: 10,
   },
-  btnPrimary: { backgroundColor: primaryColor },
+  btnPrimary: { backgroundColor: '#00450D' },
   btnPrimaryText: { fontSize: 13, color: '#fff', fontWeight: '700' },
   btnSecondary: { backgroundColor: '#E8F5EC', borderWidth: 1, borderColor: '#B7DFC4' },
-  btnSecondaryText: { fontSize: 13, color: primaryColor, fontWeight: '700' },
-  btnOutline: { borderWidth: 1, borderColor: primaryColor, backgroundColor: '#fff' },
-  btnOutlineText: { fontSize: 13, color: primaryColor, fontWeight: '700' },
+  btnSecondaryText: { fontSize: 13, color: '#00450D', fontWeight: '700' },
+  btnOutline: { borderWidth: 1, borderColor: '#00450D', backgroundColor: '#fff' },
+  btnOutlineText: { fontSize: 13, color: '#00450D', fontWeight: '700' },
 });
 
-export default function Commandes() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [search, setSearch] = useState('');
-
-  const statusFilter = TAB_STATUS_MAP[activeTab];
-  const filtered = ALL_ORDERS.filter((o) => {
-    const matchesTab = statusFilter === null || o.status === statusFilter;
-    const matchesSearch =
-      o.id.toLowerCase().includes(search.toLowerCase()) ||
-      o.name.toLowerCase().includes(search.toLowerCase()) ||
-      o.product.toLowerCase().includes(search.toLowerCase());
-    return matchesTab && matchesSearch;
-  });
-
-  return (
-    <ThemedView style={styles.root}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn}>
-          <IconSymbol size={22} name="chevron.left" color="#1A1A1A" />
-        </TouchableOpacity>
-        <ThemedText type='title'>Commandes</ThemedText>
-      </View>
-
-      {/* Search + Filtrer */}
-      <SearchBar placeholder="Rechercher une commande..." value={search} onChangeText={setSearch} showFilter={true} />
-
-      {/* Tabs underline variant */}
-      <TabButtons
-        tabs={TABS}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        variant="underline"
-      />
-
-      {/* Orders list */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(o) => o.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <OrderCard item={item} />}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <MaterialIcons name="inbox" size={40} color="#D1D5DB" />
-            <ThemedText style={styles.emptyText}>Aucune commande trouvée</ThemedText>
-          </View>
-        }
-      />
-    </ThemedView>
-  );
-}
 
 const styles = StyleSheet.create({
-  root: { flex: 1, paddingTop: 52 },
+  root: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

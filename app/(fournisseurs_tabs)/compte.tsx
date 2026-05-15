@@ -134,7 +134,7 @@ export default function FournisseursCompte() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 48 },
+  container: { flex: 1 },
   profileCard: {
     padding: 16,
     gap: 16,

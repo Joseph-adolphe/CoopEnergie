@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -18,7 +18,7 @@ export default function KitDetail() {
   const [showAboutMore, setShowAboutMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ visible: boolean; status: 'success' | 'error'; title?: string; message?: string } | null>(null);
-
+  const router = useRouter();
   // Mock product data (replace with API)
   const product = {
     id,
@@ -62,7 +62,8 @@ export default function KitDetail() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setStatus({ visible: true, status: 'success', title: 'Ajouté au devis', message: 'Le produit a été ajouté au devis.' });
+      setStatus({ visible: true, status: 'success', title: 'Ajouté au devis', message: 'Le produit a été ajouté ' });
+      router.push('/creation-vote')
     }, 700);
   }
 

@@ -4,34 +4,43 @@
     "slug": "coopenergie",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.jpg",
     "scheme": "coopenergie",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dadv14.coopenergie",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/logo.jpg",
+        "backgroundImage": "./assets/images/logo.jpg",
+        "monochromeImage": "./assets/images/logo.jpg"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.dadv14.coopenergie"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo.jpg"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/logo.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -39,11 +48,52 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "COOPENERGIE a besoin d'accéder à vos photos pour que vous puissiez les sélectionner et les partager.",
+          "colors": {
+            "cropToolbarColor": "#E6F4FE"
+          },
+          "dark": {
+            "colors": {
+              "cropToolbarColor": "#E6F4FE"
+            }
+          }
+        }
+      ],
+      [
+        "expo-system-ui",
+        {
+          "statusBar": {
+            "barStyle": "dark-content",
+            "backgroundColor": "#000000"
+          },
+          "dark": {
+            "statusBar": {
+              "barStyle": "light-content",
+              "backgroundColor": "#E6F4FE"
+            }
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a77db94b-7cad-4a25-977c-96ee0f6bdbca"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a77db94b-7cad-4a25-977c-96ee0f6bdbca"
     }
   }
 }

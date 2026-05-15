@@ -32,7 +32,7 @@ export default function MarketplaceIndex() {
         keyExtractor={(i) => i.id}
         contentContainerStyle={{ paddingVertical: 12 }}
         renderItem={({ item }) => (
-          <Link href={`/cooperative/marketplace/kit/${item.id}`} asChild>
+          <Link href={`/marketplace/kit/${item.id}`} asChild>
             <ProductCard name={item.name} price={item.price} stock={item.stock} available={item.available} />
           </Link>
         )}
@@ -44,6 +44,6 @@ export default function MarketplaceIndex() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 48, paddingHorizontal: 16 },
+  container: { flex: 1,  paddingHorizontal: 16 },
   footerText: { fontSize: 12, color: '#6b6b6b', margin: 12, textAlign: 'center' },
 });

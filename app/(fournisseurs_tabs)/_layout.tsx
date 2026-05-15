@@ -41,7 +41,7 @@ export default function FournisseursLayout() {
       />
 
       <Tabs.Screen
-        name="profil/[id]"
+        name="compte"
         options={{
           title: 'Compte',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,

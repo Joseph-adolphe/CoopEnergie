@@ -14,6 +14,20 @@ const NOTIFS = [
   { id: '4', type: 'objective', title: "Objectif atteint à 75%", message: "L'objectif du projet d'eau propre est atteint à 75%.", date: '10 Mai' },
 ];
 
+
+export default function Notifications() {
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText type="title">Notifications</ThemedText>
+
+      <FlatList data={NOTIFS} keyExtractor={(i) => i.id} renderItem={renderItem} style={styles.list} />
+
+      <Button title="Voir toutes" variant="primary" style={styles.cta} onPress={() => {}} />
+    </ThemedView>
+  );
+}
+
+
 function renderItem({ item }: any) {
   const accent = useThemeColor({}, 'accentGreen') as string;
   const iconName = item.type === 'contribution' ? 'person.fill' : item.type === 'vote' ? 'person.3.fill' : item.type === 'payment' ? 'bell' : 'paperplane.fill';
@@ -29,18 +43,6 @@ function renderItem({ item }: any) {
       </View>
       <ThemedText type="text">{item.date}</ThemedText>
     </View>
-  );
-}
-
-export default function Notifications() {
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Notifications</ThemedText>
-
-      <FlatList data={NOTIFS} keyExtractor={(i) => i.id} renderItem={renderItem} style={styles.list} />
-
-      <Button title="Voir toutes" variant="primary" style={styles.cta} onPress={() => {}} />
-    </ThemedView>
   );
 }
 

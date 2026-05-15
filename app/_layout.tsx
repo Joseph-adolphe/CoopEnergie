@@ -16,13 +16,14 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <Stack>
-          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          {/* <ProtectedStack /> */}
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(fournisseurs_tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="inscription" options={{ headerShown: false }} />
-          <Stack.Screen name="connexion" options={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown : false}}>
+          <Stack.Screen name="(onboarding_screen)"/>
+          <Stack.Screen name="(tabs)"/>
+          <Stack.Screen name="(fournisseurs_tabs)"/>
+          <Stack.Screen name="inscription"/>
+          <Stack.Screen name="connexion"/>
+          <Stack.Screen name="marketplace"  />
+           <Stack.Screen name="(vote)"/>
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
       </AuthProvider>
